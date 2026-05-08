@@ -1,0 +1,40 @@
+title: 💡 Show & Tell — My Solution
+labels: ["show-and-tell"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share a slick rung, an SFC you're proud of, or a clever workaround you found.
+        Screenshots welcome.
+
+  - type: input
+    id: sprint
+    attributes:
+      label: Sprint or Lab
+      description: Which sprint or lab does this relate to?
+      placeholder: "Sprint 3 — Ladder & FBD"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What you built
+      description: Describe what your solution does
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it's interesting
+      description: What makes this worth sharing?
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code or screenshot
+      description: Paste your structured text or attach an image
+      render: pascal
