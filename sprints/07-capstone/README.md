@@ -69,7 +69,7 @@ flowchart TD
 
 1. **`README.md`** — system description, sequence of operations, assumptions
 2. **`io-list.csv`** — every tag, type, address, fail-safe state
-3. **`sfc-diagram.png`** or `.excalidraw` — the SFC drawn out
+3. **`sfc-diagram.png`**, `.svg`, or a Mermaid source — the SFC drawn out
 4. **`main.st`** — the SFC + actions in Structured Text
 5. **`safety.st`** — separate safety POU (would normally run on a safety PLC)
 6. **`fmea.md`** — at least 10 entries with severity / likelihood / detectability scoring

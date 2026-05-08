@@ -29,7 +29,7 @@ flowchart LR
 - **Interactive simulators** (Streamlit + Gradio) for scan cycles, number bases, and timers
 - **Auto-graded labs** in Structured Text
 - **Flashcards** for spaced repetition
-- **Visual assets** — Mermaid diagrams and Excalidraw templates
+- **Visual assets** — editable Mermaid diagram sources
 
 ## Where to Start
 
@@ -53,12 +53,25 @@ flowchart LR
 
 ## Interactive Tools
 
-These are run locally — clone the repo and follow each tool's README to launch:
+The Streamlit and Gradio tools run locally — clone the repo, install the
+matching `requirements.txt`, and launch:
 
 - **[Scan Cycle Visualizer](../interactive-tools/scan-cycle-visualizer/README.md)** *(Streamlit)* — see how a slow scan misses a fast pulse
-- **Number Base Converter** *(Gradio)* — `interactive-tools/number-converter/`
-- **Timer / Counter Playground** *(Streamlit)* — `interactive-tools/timer-counter-playground/`
-- **[Ladder Playground](../interactive-tools/ladder-simulator/index.html)** *(plain HTML, runs in any browser)*
+  ```bash
+  pip install -r interactive-tools/scan-cycle-visualizer/requirements.txt
+  streamlit run interactive-tools/scan-cycle-visualizer/app.py
+  ```
+- **Number Base Converter** *(Gradio)*
+  ```bash
+  pip install -r interactive-tools/number-converter/requirements.txt
+  python interactive-tools/number-converter/app.py
+  ```
+- **Timer / Counter Playground** *(Streamlit)*
+  ```bash
+  pip install -r interactive-tools/timer-counter-playground/requirements.txt
+  streamlit run interactive-tools/timer-counter-playground/app.py
+  ```
+- **[Ladder Playground](../interactive-tools/ladder-simulator/index.html)** *(static HTML — open the file in any browser, no install needed)*
 
 ## Reference
 

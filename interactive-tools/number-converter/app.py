@@ -17,10 +17,17 @@ def to_bcd(n: int, digits: int = 4) -> str:
     return " ".join(format(int(d), "04b") for d in s)
 
 
-def bit_blocks(n: int, width: int = 16) -> str:
-    """Render an integer as a row of colored 0/1 blocks."""
+def bit_blocks(n: int, width: int = 16) -> tuple[str, str]:
+    """Render an integer as a row of 0/1 blocks plus an aligned index ruler.
+
+    Each bit takes the same number of columns as its index label (max two
+    digits), so the ruler underneath always sits below the bit it refers to.
+    """
     bits = format(n & ((1 << width) - 1), f"0{width}b")
-    return " ".join(["█" if b == "1" else "·" for b in bits])
+    cell = max(2, len(str(width - 1))) if width > 0 else 1
+    glyphs = [("█" if b == "1" else "·").center(cell) for b in bits]
+    indices = [str(width - 1 - i).rjust(cell) for i in range(width)]
+    return " ".join(glyphs), " ".join(indices)
 
 
 def convert(value: str, base: str):
@@ -41,7 +48,7 @@ def convert(value: str, base: str):
     octal_str = format(n, "o")
     hex_str = format(n, "X")
     bcd_str = to_bcd(n, max(len(str(n)), 4))
-    blocks = bit_blocks(n, width=width)
+    blocks, ruler = bit_blocks(n, width=width)
 
     return (
         str(n),
@@ -49,7 +56,7 @@ def convert(value: str, base: str):
         octal_str,
         hex_str,
         bcd_str,
-        f"```\n{blocks}\n{'  '.join(str(width - 1 - i) for i in range(width))}\n```",
+        f"```\n{blocks}\n{ruler}\n```",
     )
 
 
@@ -80,7 +87,8 @@ with gr.Blocks(title="PLC-FastTrack — Number Base Converter") as demo:
         out_oct = gr.Textbox(label="Octal")
         out_hex = gr.Textbox(label="Hexadecimal")
     out_bcd = gr.Textbox(label="BCD (4 bits per decimal digit)")
-    out_blocks = gr.Markdown(label="Bit pattern")
+    gr.Markdown("**Bit pattern** *(MSB on the left)*")
+    out_blocks = gr.Markdown()
 
     btn.click(
         convert,
