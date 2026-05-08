@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PLC-FastTrack — Car Factory Simulator</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-2: #0b1220;
+    --line: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #3b82f6;
+    --energized: #22c55e;
+    --running: #22c55e;
+    --idle: #94a3b8;
+    --warn: #f59e0b;
+    --fault: #ef4444;
+    --weld: #f59e0b;
+    --paint: #a855f7;
+    --engine: #3b82f6;
+    --qc: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, system-ui, "Segoe UI", sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  h1 { margin: 0; font-size: 22px; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  header a { color: var(--accent); text-decoration: none; }
+
+  .status-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 28px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .pill {
+    background: var(--panel);
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+  }
+  .pill .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--idle);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .pill.running .dot { background: var(--running); box-shadow: 0 0 8px var(--running); }
+  .pill.faulted .dot { background: var(--fault); box-shadow: 0 0 8px var(--fault); }
+  .pill strong { color: #fff; }
+
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 16px;
+    padding: 16px 28px 28px;
+  }
+  @media (max-width: 1024px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .panel h2 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .floor svg { width: 100%; height: auto; display: block; }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  button {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.danger { background: #7f1d1d; border-color: var(--fault); color: #fff; }
+  button.danger.armed { background: var(--fault); animation: pulse 1s infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
+    50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  label.slider-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  input[type="range"] { accent-color: var(--accent); }
+
+  .io-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+  }
+  .io-row {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--panel-2);
+  }
+  .io-row.on { background: rgba(34,197,94,0.15); }
+  .io-row.fault { background: rgba(239,68,68,0.18); }
+  .led {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--line);
+    border: 1px solid #000;
+  }
+  .io-row.on .led { background: var(--energized); box-shadow: 0 0 6px var(--energized); }
+  .io-row.fault .led { background: var(--fault); box-shadow: 0 0 6px var(--fault); }
+  .io-name { color: var(--text); }
+  .io-tag { color: var(--muted); font-size: 11px; }
+
+  .step-display {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .step-display strong { color: #fff; font-weight: 600; }
+  .step-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .step-tag.fault { background: var(--fault); }
+  .step-tag.idle { background: var(--idle); color: #0f172a; }
+
+  pre.code {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px;
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px;
+    line-height: 1.55;
+    overflow-x: auto;
+    color: var(--muted);
+  }
+  pre.code .ln { display: block; padding: 0 6px; border-radius: 3px; white-space: pre; }
+  pre.code .ln.active {
+    background: rgba(59,130,246,0.22);
+    color: #fff;
+    border-left: 3px solid var(--accent);
+    padding-left: 3px;
+  }
+  pre.code .kw { color: #f472b6; }
+  pre.code .str { color: #86efac; }
+  pre.code .com { color: #64748b; font-style: italic; }
+
+  details summary { cursor: pointer; padding: 4px 0; color: var(--muted); }
+  details[open] summary { color: #fff; }
+
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  footer {
+    color: var(--muted);
+    font-size: 12px;
+    padding: 16px 28px 32px;
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🚗 Car Factory PLC Simulator</h1>
+    <div class="sub">A worked example of a 4-station automotive assembly line driven by a Sequential Function Chart (SFC) program. Watch the live PLC outputs animate the floor.</div>
+  </div>
+  <div class="sub">Part of <a href="../../README.md">PLC-FastTrack</a> · Sprint 4 / 6 companion</div>
+</header>
+
+<div class="status-bar" id="statusBar">
+  <span class="pill" id="pillState"><span class="dot"></span><strong>IDLE</strong></span>
+  <span class="pill">Step: <strong id="lblStep">S0_IDLE</strong></span>
+  <span class="pill">Cycle time: <strong id="lblCycle">—</strong></span>
+  <span class="pill">Cars produced: <strong id="lblCount">0</strong></span>
+  <span class="pill">QC passed: <strong id="lblPass">0</strong></span>
+  <span class="pill">QC failed: <strong id="lblFail">0</strong></span>
+  <span class="pill">Scan #: <strong id="lblScan">0</strong></span>
+</div>
+
+<main>
+  <section class="panel floor">
+    <h2>Factory Floor (live PLC outputs)</h2>
+    <svg viewBox="0 0 900 360" id="floorSvg" aria-label="Factory floor diagram">
+      <!-- Conveyor belt -->
+      <rect x="40" y="200" width="820" height="40" fill="#1f2937" stroke="#334155" />
+      <g id="beltMarks"></g>
+      <text x="40" y="195" font-size="11" fill="#94a3b8">CONVEYOR — Y_Belt</text>
+
+      <!-- Stations -->
+      <g id="stationWeld">
+        <rect x="100" y="110" width="120" height="80" rx="6" fill="#1e293b" stroke="#475569" />
+        <text x="160" y="100" text-anchor="middle" font-size="12" fill="#fde68a" font-weight="700">WELD ROBOT</text>
+        <text x="160" y="155" text-anchor="middle" font-size="11" fill="#94a3b8">Y_Weld</text>
+        <circle id="ledWeld" cx="160" cy="178" r="5" fill="#475569" />
+        <!-- Photoelectric eye -->
+        <circle id="eyeWeld" cx="160" cy="220" r="4" fill="#64748b" />
+        <text x="160" y="260" text-anchor="middle" font-size="10" fill="#94a3b8">PE_Weld</text>
+      </g>
+      <g id="stationPaint">
+        <rect x="290" y="110" width="120" height="80" rx="6" fill="#1e293b" stroke="#475569" />
+        <text x="350" y="100" text-anchor="middle" font-size="12" fill="#d8b4fe" font-weight="700">PAINT BOOTH</text>
+        <text x="350" y="155" text-anchor="middle" font-size="11" fill="#94a3b8">Y_Paint</text>
+        <circle id="ledPaint" cx="350" cy="178" r="5" fill="#475569" />
+        <circle id="eyePaint" cx="350" cy="220" r="4" fill="#64748b" />
+        <text x="350" y="260" text-anchor="middle" font-size="10" fill="#94a3b8">PE_Paint</text>
+      </g>
+      <g id="stationEngine">
+        <rect x="480" y="110" width="120" height="80" rx="6" fill="#1e293b" stroke="#475569" />
+        <text x="540" y="100" text-anchor="middle" font-size="12" fill="#93c5fd" font-weight="700">ENGINE INSTALL</text>
+        <text x="540" y="155" text-anchor="middle" font-size="11" fill="#94a3b8">Y_Engine</text>
+        <circle id="ledEngine" cx="540" cy="178" r="5" fill="#475569" />
+        <circle id="eyeEngine" cx="540" cy="220" r="4" fill="#64748b" />
+        <text x="540" y="260" text-anchor="middle" font-size="10" fill="#94a3b8">PE_Engine</text>
+      </g>
+      <g id="stationQC">
+        <rect x="670" y="110" width="120" height="80" rx="6" fill="#1e293b" stroke="#475569" />
+        <text x="730" y="100" text-anchor="middle" font-size="12" fill="#86efac" font-weight="700">QUALITY CHECK</text>
+        <text x="730" y="155" text-anchor="middle" font-size="11" fill="#94a3b8">Y_QC_Pass / Y_QC_Fail</text>
+        <circle id="ledQCPass" cx="715" cy="178" r="5" fill="#475569" />
+        <circle id="ledQCFail" cx="745" cy="178" r="5" fill="#475569" />
+        <circle id="eyeQC" cx="730" cy="220" r="4" fill="#64748b" />
+        <text x="730" y="260" text-anchor="middle" font-size="10" fill="#94a3b8">PE_QC</text>
+      </g>
+
+      <!-- Output bin -->
+      <rect x="820" y="200" width="40" height="40" fill="#0b1220" stroke="#334155" />
+      <text x="840" y="196" font-size="10" fill="#94a3b8" text-anchor="middle">OUTPUT</text>
+
+      <!-- Alarm beacon -->
+      <g id="beacon">
+        <circle id="beaconLight" cx="60" cy="80" r="14" fill="#1e293b" stroke="#475569" />
+        <text x="60" y="50" text-anchor="middle" font-size="10" fill="#94a3b8">Y_Alarm</text>
+      </g>
+
+      <!-- Chassis pool (positions are set in JS) -->
+      <g id="chassisLayer"></g>
+    </svg>
+
+    <div class="legend">
+      <span><i style="background:#475569"></i>Sensor low</span>
+      <span><i style="background:#22c55e"></i>Sensor high</span>
+      <span><i style="background:#f59e0b"></i>Weld active</span>
+      <span><i style="background:#a855f7"></i>Paint active</span>
+      <span><i style="background:#3b82f6"></i>Engine install active</span>
+      <span><i style="background:#ef4444"></i>Fault / E-stop</span>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <h2>Operator Controls</h2>
+    <div class="controls">
+      <button id="btnStart" class="primary">▶ Start</button>
+      <button id="btnStop">■ Stop</button>
+      <button id="btnEStop" class="danger">⛔ E-Stop</button>
+      <button id="btnReset">⟲ Reset</button>
+    </div>
+    <label class="slider-label" style="margin-top:12px">
+      Sim speed
+      <input type="range" id="speed" min="0.25" max="4" step="0.25" value="1" />
+      <span id="speedLbl">1.0×</span>
+    </label>
+    <label class="slider-label" style="margin-top:6px">
+      QC pass rate
+      <input type="range" id="passRate" min="0" max="100" step="5" value="85" />
+      <span id="passRateLbl">85%</span>
+    </label>
+
+    <h2 style="margin-top:18px">Inputs (PLC %I)</h2>
+    <div class="io-grid" id="inputs"></div>
+
+    <h2 style="margin-top:14px">Outputs (PLC %Q)</h2>
+    <div class="io-grid" id="outputs"></div>
+
+    <h2 style="margin-top:14px">Sequencer</h2>
+    <div class="step-display">
+      <span>Active step</span><span><span id="stepTag" class="step-tag idle">S0_IDLE</span></span>
+      <span>Description</span><strong id="stepDesc">Waiting for Start</strong>
+      <span>Step timer</span><strong id="stepTimer">0.0 s</strong>
+    </div>
+  </aside>
+</main>
+
+<section class="panel" style="margin: 0 28px 28px;">
+  <h2>Equivalent Structured Text (auto-highlighted to match the running step)</h2>
+  <pre class="code" id="codeView"></pre>
+  <details style="margin-top:12px">
+    <summary>How this maps to the SFC</summary>
+    <p style="color:var(--muted); font-size: 13px; line-height:1.55">
+      The simulator runs a 100&nbsp;ms scan loop. Each scan: (1) reads inputs (Start, Stop,
+      E-stop, photoelectric eyes); (2) executes the SFC transitions; (3) writes outputs
+      (conveyor motor, station tools, alarm). The chassis you see on the floor are
+      driven by <em>output bits</em>, never by direct animation — when <code>Y_Belt</code>
+      is high, the chassis advance. When <code>Y_Weld</code> is high, the weld lamp
+      pulses. Toggle E-stop and you'll see the program enter <code>S_FAULT</code>,
+      latch <code>Y_Alarm</code>, and drop every other output — the same fail-safe
+      pattern Bolton describes in Ch. 13–14.
+    </p>
+  </details>
+</section>
+
+<footer>
+  Built for <a href="../../README.md">PLC-FastTrack</a> · Sprint 4 (SFC + ST) and Sprint 6 (Design &amp; Safety) companion ·
+  Single static file — no build, no install. Open <code>index.html</code> in any browser.
+</footer>
+
+<script>
+// ─── PLC I/O definitions ─────────────────────────────────────────────────────
+const INPUT_DEFS = [
+  { tag: 'I0.0', name: 'PB_Start',  desc: 'Start push button (NO)' },
+  { tag: 'I0.1', name: 'PB_Stop',   desc: 'Stop push button (NC, fail-safe)' },
+  { tag: 'I0.2', name: 'PB_EStop',  desc: 'Emergency stop (NC, dual-channel)' },
+  { tag: 'I0.3', name: 'PE_Weld',   desc: 'Photoelectric eye at weld station' },
+  { tag: 'I0.4', name: 'PE_Paint',  desc: 'Photoelectric eye at paint booth' },
+  { tag: 'I0.5', name: 'PE_Engine', desc: 'Photoelectric eye at engine install' },
+  { tag: 'I0.6', name: 'PE_QC',     desc: 'Photoelectric eye at QC' },
+];
+const OUTPUT_DEFS = [
+  { tag: 'Q0.0', name: 'Y_Belt',    desc: 'Conveyor belt motor contactor' },
+  { tag: 'Q0.1', name: 'Y_Weld',    desc: 'Weld robot enable' },
+  { tag: 'Q0.2', name: 'Y_Paint',   desc: 'Paint sprayer enable' },
+  { tag: 'Q0.3', name: 'Y_Engine',  desc: 'Engine-install hoist enable' },
+  { tag: 'Q0.4', name: 'Y_QC_Pass', desc: 'QC pass indicator' },
+  { tag: 'Q0.5', name: 'Y_QC_Fail', desc: 'QC fail indicator + reject' },
+  { tag: 'Q0.6', name: 'Y_Alarm',   desc: 'Alarm beacon (latched on fault)' },
+];
+
+// ─── State ───────────────────────────────────────────────────────────────────
+const STEPS = [
+  { id: 'S0_IDLE',     desc: 'Waiting for Start' },
+  { id: 'S1_LOAD',     desc: 'Loading new chassis at infeed' },
+  { id: 'S2_TO_WELD',  desc: 'Conveying to WELD station' },
+  { id: 'S3_WELD',     desc: 'Welding chassis (5 s)' },
+  { id: 'S4_TO_PAINT', desc: 'Conveying to PAINT booth' },
+  { id: 'S5_PAINT',    desc: 'Painting body (4 s)' },
+  { id: 'S6_TO_ENGINE',desc: 'Conveying to ENGINE install' },
+  { id: 'S7_ENGINE',   desc: 'Installing engine (6 s)' },
+  { id: 'S8_TO_QC',    desc: 'Conveying to QUALITY CHECK' },
+  { id: 'S9_QC',       desc: 'QC inspection (3 s)' },
+  { id: 'S10_DISCHARGE',desc:'Discharging to output bin' },
+  { id: 'S_FAULT',     desc: 'FAULT — E-stop latched, requires Reset' },
+];
+const STEP_INDEX = Object.fromEntries(STEPS.map((s, i) => [s.id, i]));
+
+const STATIONS = {
+  weld:   { x: 160, timer: 5.0, output: 'Y_Weld',   eye: 'PE_Weld'   },
+  paint:  { x: 350, timer: 4.0, output: 'Y_Paint',  eye: 'PE_Paint'  },
+  engine: { x: 540, timer: 6.0, output: 'Y_Engine', eye: 'PE_Engine' },
+  qc:     { x: 730, timer: 3.0, output: '',         eye: 'PE_QC'     },
+};
+
+const SCAN_MS = 100;
+let speedMul = 1;
+
+const state = {
+  inputs:  Object.fromEntries(INPUT_DEFS.map(i => [i.name, false])),
+  outputs: Object.fromEntries(OUTPUT_DEFS.map(o => [o.name, false])),
+  step: 'S0_IDLE',
+  stepTimer: 0,
+  scanCount: 0,
+  cycleTime: 0,
+  cycleStart: 0,
+  carsProduced: 0,
+  qcPass: 0,
+  qcFail: 0,
+  // The PB_Stop input is wired NC (closed = healthy), so its idle state is true.
+  stopHealthy: true,
+  // Latched alarm — only cleared by Reset.
+  alarmLatch: false,
+  // Carriage of chassis on the line: list of {id, x, painted, hasEngine, qcStatus, atOutput}
+  chassis: [],
+  nextId: 1,
+  passRate: 0.85,
+  paused: true,
+  estop: false,
+};
+state.inputs.PB_Stop = true; // NC contact — high in healthy state
+
+// ─── DOM helpers ─────────────────────────────────────────────────────────────
+const $ = (id) => document.getElementById(id);
+function makeIORow(io, isInput) {
+  const div = document.createElement('div');
+  div.className = 'io-row';
+  div.id = (isInput ? 'in_' : 'out_') + io.name;
+  div.innerHTML = `
+    <span class="led"></span>
+    <span class="io-name" title="${io.desc}">${io.name}</span>
+    <span class="io-tag">${io.tag}</span>`;
+  return div;
+}
+INPUT_DEFS.forEach(io => $('inputs').appendChild(makeIORow(io, true)));
+OUTPUT_DEFS.forEach(io => $('outputs').appendChild(makeIORow(io, false)));
+
+// ─── Belt segments for visual motion ─────────────────────────────────────────
+const beltMarksGroup = $('beltMarks');
+for (let i = 0; i < 28; i++) {
+  const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  r.setAttribute('x', 50 + i * 30);
+  r.setAttribute('y', 218);
+  r.setAttribute('width', 14);
+  r.setAttribute('height', 4);
+  r.setAttribute('fill', '#334155');
+  r.dataset.idx = i;
+  beltMarksGroup.appendChild(r);
+}
+
+// ─── Sequencer logic (the "PLC program") ────────────────────────────────────
+function setStep(next) {
+  state.step = next;
+  state.stepTimer = 0;
+}
+
+// Maps the active SFC step to the highlighted line in the ST view.
+const STEP_TO_LINE = {
+  S0_IDLE: 7, S1_LOAD: 11, S2_TO_WELD: 14, S3_WELD: 17,
+  S4_TO_PAINT: 21, S5_PAINT: 24, S6_TO_ENGINE: 28, S7_ENGINE: 31,
+  S8_TO_QC: 35, S9_QC: 38, S10_DISCHARGE: 43, S_FAULT: 48,
+};
+
+function executeProgram(dt) {
+  // ── Safety override: fault is sticky until Reset ──
+  if (state.alarmLatch || !state.inputs.PB_EStop) {
+    state.outputs.Y_Belt = false;
+    state.outputs.Y_Weld = false;
+    state.outputs.Y_Paint = false;
+    state.outputs.Y_Engine = false;
+    state.outputs.Y_QC_Pass = false;
+    state.outputs.Y_QC_Fail = false;
+    state.outputs.Y_Alarm = true;
+    state.alarmLatch = true;
+    state.step = 'S_FAULT';
+    return;
+  }
+
+  // ── PB_Stop is NC, so a "false" reading means the operator pressed Stop ──
+  const stopPressed = !state.inputs.PB_Stop;
+
+  state.stepTimer += dt;
+
+  // Default outputs for this scan (recomputed each scan — no double-coil)
+  let yBelt = false, yWeld = false, yPaint = false, yEngine = false;
+  let yPass = false, yFail = false;
+
+  switch (state.step) {
+    case 'S0_IDLE':
+      if (state.inputs.PB_Start && !stopPressed) {
+        state.cycleStart = performance.now();
+        setStep('S1_LOAD');
+      }
+      break;
+
+    case 'S1_LOAD':
+      // Spawn a new chassis at the infeed
+      state.chassis.push({
+        id: state.nextId++,
+        x: 30, painted: false, hasEngine: false, qcStatus: null, atOutput: false,
+      });
+      setStep('S2_TO_WELD');
+      break;
+
+    case 'S2_TO_WELD':
+      yBelt = true;
+      if (state.inputs.PE_Weld) setStep('S3_WELD');
+      break;
+
+    case 'S3_WELD':
+      yWeld = true;
+      if (state.stepTimer >= STATIONS.weld.timer) setStep('S4_TO_PAINT');
+      break;
+
+    case 'S4_TO_PAINT':
+      yBelt = true;
+      if (state.inputs.PE_Paint) setStep('S5_PAINT');
+      break;
+
+    case 'S5_PAINT':
+      yPaint = true;
+      if (state.stepTimer >= STATIONS.paint.timer) {
+        // Mark the leading chassis as painted
+        const c = leadChassis(); if (c) c.painted = true;
+        setStep('S6_TO_ENGINE');
+      }
+      break;
+
+    case 'S6_TO_ENGINE':
+      yBelt = true;
+      if (state.inputs.PE_Engine) setStep('S7_ENGINE');
+      break;
+
+    case 'S7_ENGINE':
+      yEngine = true;
+      if (state.stepTimer >= STATIONS.engine.timer) {
+        const c = leadChassis(); if (c) c.hasEngine = true;
+        setStep('S8_TO_QC');
+      }
+      break;
+
+    case 'S8_TO_QC':
+      yBelt = true;
+      if (state.inputs.PE_QC) setStep('S9_QC');
+      break;
+
+    case 'S9_QC':
+      // Decide pass/fail at the start of the step, then drive the lamps.
+      if (state.stepTimer >= STATIONS.qc.timer) {
+        const c = leadChassis();
+        if (c) {
+          c.qcStatus = Math.random() < state.passRate ? 'pass' : 'fail';
+          if (c.qcStatus === 'pass') state.qcPass++; else state.qcFail++;
+        }
+        setStep('S10_DISCHARGE');
+      } else {
+        // While inspecting, both lamps off
+      }
+      break;
+
+    case 'S10_DISCHARGE': {
+      yBelt = true;
+      const c = leadChassis();
+      if (c) {
+        if (c.qcStatus === 'pass') yPass = true; else yFail = true;
+        if (c.x >= 850) {
+          c.atOutput = true;
+          state.carsProduced++;
+          state.cycleTime = (performance.now() - state.cycleStart) / 1000;
+          // If the operator pressed Stop, return to idle. Otherwise loop back.
+          setStep(stopPressed ? 'S0_IDLE' : 'S1_LOAD');
+        }
+      } else {
+        setStep('S0_IDLE');
+      }
+      break;
+    }
+
+    case 'S_FAULT':
+      // Stay until reset clears the latch (handled by btnReset).
+      break;
+  }
+
+  state.outputs.Y_Belt = yBelt;
+  state.outputs.Y_Weld = yWeld;
+  state.outputs.Y_Paint = yPaint;
+  state.outputs.Y_Engine = yEngine;
+  state.outputs.Y_QC_Pass = yPass;
+  state.outputs.Y_QC_Fail = yFail;
+  state.outputs.Y_Alarm = false;
+}
+
+function leadChassis() {
+  // The chassis currently at or approaching the active station — the most
+  // recently spawned one that hasn't reached the output bin.
+  for (let i = state.chassis.length - 1; i >= 0; i--) {
+    if (!state.chassis[i].atOutput) return state.chassis[i];
+  }
+  return null;
+}
+
+// ─── Plant simulation: the world the PLC observes ────────────────────────────
+function tickPlant(dt) {
+  // Move chassis when the belt is energized.
+  if (state.outputs.Y_Belt) {
+    const speed = 90; // px / s
+    state.chassis.forEach(c => { if (!c.atOutput) c.x += speed * dt; });
+  }
+
+  // Photoelectric eyes — high while a chassis is within tolerance of the eye.
+  const within = (c, x) => Math.abs(c.x - x) < 14 && !c.atOutput;
+  state.inputs.PE_Weld   = state.chassis.some(c => within(c, STATIONS.weld.x));
+  state.inputs.PE_Paint  = state.chassis.some(c => within(c, STATIONS.paint.x));
+  state.inputs.PE_Engine = state.chassis.some(c => within(c, STATIONS.engine.x));
+  state.inputs.PE_QC     = state.chassis.some(c => within(c, STATIONS.qc.x));
+
+  // Drop chassis that have exited the floor.
+  state.chassis = state.chassis.filter(c => c.x < 870);
+
+  // Belt scrolls visually only while energized.
+  if (state.outputs.Y_Belt) {
+    Array.from(beltMarksGroup.children).forEach(rect => {
+      let x = parseFloat(rect.getAttribute('x')) + 90 * dt;
+      if (x > 860) x -= 30 * 28;
+      rect.setAttribute('x', x);
+    });
+  }
+}
+
+// ─── Render ──────────────────────────────────────────────────────────────────
+function renderIO() {
+  for (const i of INPUT_DEFS) {
+    $('in_' + i.name).classList.toggle('on', !!state.inputs[i.name]);
+  }
+  for (const o of OUTPUT_DEFS) {
+    const row = $('out_' + o.name);
+    row.classList.toggle('on', !!state.outputs[o.name]);
+    row.classList.toggle('fault', o.name === 'Y_Alarm' && state.outputs.Y_Alarm);
+  }
+}
+
+const STATION_COLORS = {
+  Y_Weld:   '#f59e0b',
+  Y_Paint:  '#a855f7',
+  Y_Engine: '#3b82f6',
+};
+function renderFloor() {
+  // Station LED + station box accent
+  const setLed = (id, on, color) => {
+    const el = $(id);
+    el.setAttribute('fill', on ? color : '#475569');
+    if (on) el.setAttribute('filter', '');
+  };
+  setLed('ledWeld',   state.outputs.Y_Weld,   STATION_COLORS.Y_Weld);
+  setLed('ledPaint',  state.outputs.Y_Paint,  STATION_COLORS.Y_Paint);
+  setLed('ledEngine', state.outputs.Y_Engine, STATION_COLORS.Y_Engine);
+  setLed('ledQCPass', state.outputs.Y_QC_Pass, '#22c55e');
+  setLed('ledQCFail', state.outputs.Y_QC_Fail, '#ef4444');
+
+  // Photoelectric eye coloring
+  const setEye = (id, on) => $(id).setAttribute('fill', on ? '#22c55e' : '#64748b');
+  setEye('eyeWeld',   state.inputs.PE_Weld);
+  setEye('eyePaint',  state.inputs.PE_Paint);
+  setEye('eyeEngine', state.inputs.PE_Engine);
+  setEye('eyeQC',     state.inputs.PE_QC);
+
+  // Beacon — blink while alarm is on
+  const blink = state.outputs.Y_Alarm && Math.floor(performance.now() / 250) % 2 === 0;
+  $('beaconLight').setAttribute('fill', blink ? '#ef4444' : '#1e293b');
+
+  // Chassis — render via SVG <g> entries
+  const layer = $('chassisLayer');
+  // Diff: remove DOM entries for chassis that no longer exist
+  const known = new Set(state.chassis.map(c => 'c' + c.id));
+  Array.from(layer.children).forEach(el => { if (!known.has(el.id)) layer.removeChild(el); });
+  state.chassis.forEach(c => {
+    let g = document.getElementById('c' + c.id);
+    if (!g) {
+      g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.id = 'c' + c.id;
+      g.innerHTML = `
+        <rect class="body" x="-22" y="-14" width="44" height="20" rx="3" fill="#475569" stroke="#0f172a" />
+        <circle cx="-13" cy="8" r="4" fill="#0f172a" />
+        <circle cx="13"  cy="8" r="4" fill="#0f172a" />
+        <text class="hood" x="0" y="-1" text-anchor="middle" font-size="9" fill="#cbd5e1"></text>`;
+      layer.appendChild(g);
+    }
+    g.setAttribute('transform', `translate(${c.x}, 215)`);
+    const body = g.querySelector('.body');
+    const hood = g.querySelector('.hood');
+    let fill = '#475569';
+    if (c.painted) fill = '#a855f7';
+    if (c.qcStatus === 'pass') fill = '#22c55e';
+    if (c.qcStatus === 'fail') fill = '#ef4444';
+    body.setAttribute('fill', fill);
+    hood.textContent = c.hasEngine ? '⚙' : '';
+  });
+}
+
+function renderStatus() {
+  const pill = $('pillState');
+  pill.classList.remove('running', 'faulted');
+  let label = 'IDLE';
+  if (state.alarmLatch) { pill.classList.add('faulted'); label = 'FAULTED'; }
+  else if (!state.paused) { pill.classList.add('running'); label = 'RUNNING'; }
+  pill.querySelector('strong').textContent = label;
+
+  $('lblStep').textContent = state.step;
+  $('lblScan').textContent = state.scanCount;
+  $('lblCount').textContent = state.carsProduced;
+  $('lblPass').textContent = state.qcPass;
+  $('lblFail').textContent = state.qcFail;
+  $('lblCycle').textContent = state.cycleTime ? state.cycleTime.toFixed(1) + ' s' : '—';
+
+  const tag = $('stepTag');
+  tag.textContent = state.step;
+  tag.classList.remove('idle', 'fault');
+  if (state.step === 'S0_IDLE') tag.classList.add('idle');
+  if (state.step === 'S_FAULT') tag.classList.add('fault');
+  $('stepDesc').textContent = STEPS[STEP_INDEX[state.step]].desc;
+  $('stepTimer').textContent = state.stepTimer.toFixed(1) + ' s';
+
+  highlightCode();
+}
+
+// ─── ST source view ──────────────────────────────────────────────────────────
+const ST_SOURCE = [
+  '(* Car-factory line — simplified SFC in Structured Text                *)',
+  'CASE step OF',
+  '',
+  '  (* ─────────── Idle: latch waits for Start, Stop is NC fail-safe ─── *)',
+  '  S0_IDLE:',
+  '    Y_Belt := FALSE; Y_Weld := FALSE; Y_Paint := FALSE; Y_Engine := FALSE;',
+  '    IF PB_Start AND PB_Stop THEN',
+  '      step := S1_LOAD;        (* operator pressed Start *)',
+  '    END_IF;',
+  '',
+  '  S1_LOAD:    SpawnChassis(); step := S2_TO_WELD;',
+  '',
+  '  (* ─────────── Conveyor + station sequence ────────────────────────── *)',
+  '  S2_TO_WELD:    Y_Belt := TRUE;  IF PE_Weld   THEN step := S3_WELD;     END_IF;',
+  '',
+  '  S3_WELD:       Y_Belt := FALSE; Y_Weld := TRUE;',
+  '                 IF stepTimer >= 5.0 THEN step := S4_TO_PAINT;  END_IF;',
+  '',
+  '  S4_TO_PAINT:   Y_Belt := TRUE;  IF PE_Paint  THEN step := S5_PAINT;    END_IF;',
+  '',
+  '  S5_PAINT:      Y_Belt := FALSE; Y_Paint := TRUE;',
+  '                 IF stepTimer >= 4.0 THEN step := S6_TO_ENGINE; END_IF;',
+  '',
+  '  S6_TO_ENGINE:  Y_Belt := TRUE;  IF PE_Engine THEN step := S7_ENGINE;   END_IF;',
+  '',
+  '  S7_ENGINE:     Y_Belt := FALSE; Y_Engine := TRUE;',
+  '                 IF stepTimer >= 6.0 THEN step := S8_TO_QC;    END_IF;',
+  '',
+  '  S8_TO_QC:      Y_Belt := TRUE;  IF PE_QC     THEN step := S9_QC;       END_IF;',
+  '',
+  '  S9_QC:         IF stepTimer >= 3.0 THEN',
+  '                   ScoreQC();           (* sets pass/fail flag *)',
+  '                   step := S10_DISCHARGE;',
+  '                 END_IF;',
+  '',
+  '  S10_DISCHARGE: Y_Belt := TRUE;',
+  '                 Y_QC_Pass := lastResult; Y_QC_Fail := NOT lastResult;',
+  '                 IF chassisAtOutput THEN step := S0_IDLE OR S1_LOAD; END_IF;',
+  '',
+  '  (* ─────────── Hardwired safety: E-stop latches the alarm ─────────── *)',
+  '  S_FAULT:       Y_Alarm := TRUE; (* all motion outputs forced FALSE *)',
+  '                 (* Operator must press Reset to clear the latch     *)',
+  '',
+  'END_CASE;',
+  '',
+  '(* Safety POU — runs every scan *before* the case statement *)',
+  'IF NOT PB_EStop THEN step := S_FAULT; END_IF;',
+];
+function renderCode() {
+  const html = ST_SOURCE.map((line, i) => {
+    const escaped = line
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/(\(\*.*?\*\))/g, '<span class="com">$1</span>')
+      .replace(/\b(CASE|OF|IF|THEN|END_IF|END_CASE|TRUE|FALSE|NOT|AND|OR)\b/g, '<span class="kw">$1</span>');
+    return `<span class="ln" data-line="${i}">${String(i + 1).padStart(2, ' ')} | ${escaped}</span>`;
+  }).join('');
+  $('codeView').innerHTML = html;
+}
+function highlightCode() {
+  const target = STEP_TO_LINE[state.step];
+  document.querySelectorAll('pre.code .ln').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.line, 10) === target);
+  });
+}
+
+// ─── Controls ────────────────────────────────────────────────────────────────
+$('btnStart').addEventListener('click', () => {
+  if (state.alarmLatch) return;
+  state.inputs.PB_Start = true;
+  state.paused = false;
+  setTimeout(() => state.inputs.PB_Start = false, 200); // momentary push
+});
+$('btnStop').addEventListener('click', () => {
+  // Drop the NC line for one scan to register the press.
+  state.inputs.PB_Stop = false;
+  setTimeout(() => state.inputs.PB_Stop = true, 250);
+});
+const eStopBtn = $('btnEStop');
+eStopBtn.addEventListener('click', () => {
+  state.estop = !state.estop;
+  state.inputs.PB_EStop = !state.estop; // NC contact: opens when pressed
+  eStopBtn.classList.toggle('armed', state.estop);
+  eStopBtn.textContent = state.estop ? '⛔ E-Stop (PRESSED)' : '⛔ E-Stop';
+});
+$('btnReset').addEventListener('click', () => {
+  if (state.estop) {
+    // Force user to release E-stop first, mirroring real safety practice.
+    alert('Release the E-stop before resetting the alarm.');
+    return;
+  }
+  state.alarmLatch = false;
+  state.step = 'S0_IDLE';
+  state.stepTimer = 0;
+  state.chassis = [];
+  state.scanCount = 0;
+  state.cycleTime = 0;
+  state.carsProduced = 0;
+  state.qcPass = 0;
+  state.qcFail = 0;
+  state.paused = true;
+});
+$('speed').addEventListener('input', (e) => {
+  speedMul = parseFloat(e.target.value);
+  $('speedLbl').textContent = speedMul.toFixed(2) + '×';
+});
+$('passRate').addEventListener('input', (e) => {
+  state.passRate = parseInt(e.target.value, 10) / 100;
+  $('passRateLbl').textContent = e.target.value + '%';
+});
+
+// ─── Main loop ───────────────────────────────────────────────────────────────
+renderCode();
+let lastTick = performance.now();
+let scanAcc = 0;
+function frame() {
+  const now = performance.now();
+  const realDt = (now - lastTick) / 1000;
+  lastTick = now;
+  const dt = realDt * speedMul;
+
+  // PLC scan happens at a fixed cadence (100 ms)
+  scanAcc += realDt * 1000 * speedMul;
+  while (scanAcc >= SCAN_MS) {
+    state.scanCount++;
+    executeProgram(SCAN_MS / 1000);
+    scanAcc -= SCAN_MS;
+  }
+
+  tickPlant(dt);
+  renderIO();
+  renderFloor();
+  renderStatus();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
