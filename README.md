@@ -21,26 +21,21 @@ Bolton's book is a fantastic foundation — 398 pages covering architecture, the
 
 ## 🗺️ Course Map
 
-```mermaid
-flowchart LR
-    Start([📚 Start Here]) --> S0[Sprint 0<br/>Orientation]
-    S0 --> S1[Sprint 1<br/>Architecture & I/O<br/>Ch. 1–2]
-    S1 --> S2[Sprint 2<br/>Digital Foundations<br/>Ch. 3–4]
-    S2 --> S3[Sprint 3<br/>Ladder & FBD<br/>Ch. 5]
-    S3 --> S4[Sprint 4<br/>IL, ST, SFC<br/>Ch. 6]
-    S4 --> S5[Sprint 5<br/>Timers, Counters,<br/>Registers<br/>Ch. 7–12]
-    S5 --> S6[Sprint 6<br/>Design & Safety<br/>Ch. 13–14]
-    S6 --> Cap[🏆 Capstone<br/>Burner Start-up<br/>Sequence]
+| Step | Sprint | Bolton Chapters |
+|:----:|:-------|:----------------|
+| 📚 | **Start here** | Preface |
+| 0 | [Orientation](sprints/00-orientation/) | — |
+| 1 | [Architecture & I/O](sprints/01-architecture-and-io/) | 1–2 |
+| 2 | [Digital Foundations](sprints/02-digital-foundations/) | 3–4 |
+| 3 | [Ladder & FBD](sprints/03-ladder-and-fbd/) | 5 |
+| 4 | [IL, ST, SFC](sprints/04-iec-61131-languages/) | 6 |
+| 5 | [Timers, Counters, Registers](sprints/05-timers-counters-registers/) | 7–12 |
+| 6 | [Design & Safety](sprints/06-program-design-and-safety/) | 13–14 |
+| 🏆 | [Capstone — Burner Start-up Sequence](sprints/07-capstone/) | Synthesis |
 
-    style Start fill:#0f172a,color:#fff
-    style Cap fill:#22c55e,color:#fff
-    style S1 fill:#3b82f6,color:#fff
-    style S2 fill:#3b82f6,color:#fff
-    style S3 fill:#f59e0b,color:#fff
-    style S4 fill:#f59e0b,color:#fff
-    style S5 fill:#a855f7,color:#fff
-    style S6 fill:#ef4444,color:#fff
-```
+> **Path:** Start → 0 → 1 → 2 → 3 → 4 → 5 → 6 → 🏆
+>
+> The flowchart version of this map is rendered live on the [course site](https://gaferto612.github.io/PLC-Course/).
 
 ---
 
