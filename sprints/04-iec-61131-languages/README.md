@@ -26,7 +26,7 @@
 
 - 📄 [Cheat sheet](cheatsheet.md)
 - 🔄 [Translate-the-Rung Workbook](../../workbooks/04-st-vs-il.ipynb)
-- 🧭 SFC sketching — use the [Mermaid `flowchart`](../../visuals/mermaid/) syntax
+- 🧭 SFC sketching — use the [Mermaid `flowchart`](../../visuals/mermaid/course-map.mmd) syntax
   used in the capstone diagram, or pencil-and-paper before you commit to text
 - 🃏 Sprint-4 flashcards
 - 📜 [IEC 61131-3 Quick Reference](../../reference/iec-61131-3-quickref.md)

@@ -91,4 +91,4 @@ The score tells you which sprints to dig into deepest:
 
 ## ➡️ Next
 
-Once setup is done and the pre-assessment is scored, head to **[Sprint 1: Architecture & I/O](../01-architecture-and-io/)**.
+Once setup is done and the pre-assessment is scored, head to **[Sprint 1: Architecture & I/O](../01-architecture-and-io/README.md)**.

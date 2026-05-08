@@ -54,6 +54,6 @@ What's inside:
 - A computed truth table that resets latches each row so you see combinational behaviour
 
 Sprint 3 (Bolton Ch. 5) is the natural companion — see
-[`sprints/03-ladder-and-fbd/`](../../sprints/03-ladder-and-fbd/).
+[`sprints/03-ladder-and-fbd/`](../../sprints/03-ladder-and-fbd/README.md).
 
 Contributions welcome — see [CONTRIBUTING.md](../../CONTRIBUTING.md).
