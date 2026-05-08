@@ -34,10 +34,10 @@ This is the longest reading load in the course. Pace it across the whole week.
 ## 🗂️ Materials
 
 - 📄 [Cheat sheet](cheatsheet.md)
-- ⏱️ [Timer/Counter Playground (Streamlit)](../../interactive-tools/timer-counter-playground/)
+- ⏱️ Timer/Counter Playground (Streamlit) — `interactive-tools/timer-counter-playground/app.py`
 - 🧮 [Workbook](../../workbooks/05-timer-state-machines.ipynb)
-- 🧪 [Lab 03: Tank Fill/Drain](../../challenge-labs/lab-03-tank-fill-drain/)
-- 🧪 [Lab 04: Batch Mixer](../../challenge-labs/lab-04-batch-mixer/)
+- 🧪 [Lab 03: Tank Fill/Drain](../../challenge-labs/lab-03-tank-fill-drain/README.md)
+- 🧪 [Lab 04: Batch Mixer](../../challenge-labs/lab-04-batch-mixer/README.md)
 
 ---
 

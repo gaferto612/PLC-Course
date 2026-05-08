@@ -28,7 +28,7 @@
 
 - 📄 [Cheat sheet](cheatsheet.md)
 - 🛡️ [Workbook: FMEA for a tank-fill system](../../workbooks/06-safety-fmea.ipynb)
-- 🧪 [Lab 06: Emergency Stop with Safety Relay](../../challenge-labs/lab-06-emergency-stop/)
+- 🧪 [Lab 06: Emergency Stop with Safety Relay](../../challenge-labs/lab-06-emergency-stop/README.md)
 
 ---
 
