@@ -20,18 +20,26 @@ jobs:
       - name: Pick a question
         id: pick
         run: |
-          QUESTION=$(shuf -n 1 reference/daily-questions.txt)
-          # Escape for GitHub Actions output
-          QUESTION_ESCAPED="${QUESTION//$'\n'/'%0A'}"
-          echo "question=$QUESTION_ESCAPED" >> $GITHUB_OUTPUT
-          echo "raw=$QUESTION" >> $GITHUB_ENV
+          # Skip blank lines so we never pick an empty question.
+          QUESTION=$(grep -v '^[[:space:]]*$' reference/daily-questions.txt | shuf -n 1)
+          {
+            echo "question<<__Q__"
+            echo "$QUESTION"
+            echo "__Q__"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Compose body
+        env:
+          QUESTION: ${{ steps.pick.outputs.question }}
         run: |
-          cat > /tmp/body.md <<'EOF'
-          ## 🎛️ Today's PLC Challenge
+          # Use a Python heredoc so we never have to worry about sed escaping
+          # for `|`, `&`, `\`, or newlines inside the question.
+          python3 - <<'PY'
+          import os, pathlib
+          q = os.environ["QUESTION"].strip()
+          body = f"""## 🎛️ Today's PLC Challenge
 
-          **Question:** $QUESTION_PLACEHOLDER
+          **Question:** {q}
 
           ---
 
@@ -41,8 +49,9 @@ jobs:
           - Pointing out a manufacturer-specific gotcha
 
           The community review starts at the end of the day.
-          EOF
-          sed -i "s|\$QUESTION_PLACEHOLDER|$raw|g" /tmp/body.md
+          """
+          pathlib.Path("/tmp/body.md").write_text(body)
+          PY
 
       - name: Open Issue
         uses: peter-evans/create-issue-from-file@v5

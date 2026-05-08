@@ -1,7 +1,16 @@
 site_name: PLC-FastTrack
 site_description: An interactive course based on Bolton's Programmable Logic Controllers, 5th Edition
-docs_dir: .
-site_dir: ../_site
+site_url: https://gaferto612.github.io/plc-course/
+repo_url: https://github.com/gaferto612/PLC-Course
+repo_name: gaferto612/PLC-Course
+edit_uri: edit/main/
+
+# Use the project root as the docs source so every chapter, lab, reference and
+# tool README is reachable from the live site without symlinking. The build
+# output is written to a sibling directory of the repo so it never lives
+# inside the docs source tree (MkDocs forbids site_dir inside docs_dir).
+docs_dir: ..
+site_dir: ../../_site
 
 theme:
   name: material
@@ -22,9 +31,15 @@ theme:
         name: Switch to light mode
   features:
     - navigation.instant
+    - navigation.tabs
     - navigation.sections
-    - navigation.expand
+    - navigation.top
+    - navigation.tracking
     - content.code.copy
+    - content.code.annotate
+    - search.highlight
+    - search.suggest
+    - toc.follow
   icon:
     repo: fontawesome/brands/github
 
@@ -39,10 +54,79 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - admonition
   - pymdownx.details
   - tables
   - attr_list
+  - md_in_html
+  - footnotes
+  - toc:
+      permalink: true
+
+# Files outside of the explicit nav are still built (handy for cross-links from
+# sprint READMEs into the lab folders) but are excluded from the top-level nav.
+not_in_nav: |
+  /CONTRIBUTING.md
+  /workbooks/README.md
+  /flashcards/anki/README.md
+  /interactive-tools/scan-cycle-visualizer/README.md
+  /interactive-tools/ladder-simulator/README.md
+
+# MkDocs warns by default for things like absolute links — keep this informative
+# without breaking the build.
+validation:
+  omitted_files: ignore
+  absolute_links: ignore
+  unrecognized_links: ignore
+
+exclude_docs: |
+  /_site/
+  /.git/
+  /.github/
+  /.venv/
+  /docs/mkdocs.yml
+  /interactive-tools/ladder-simulator/README.md
+  *.ipynb_checkpoints/
 
 nav:
-  - Home: index.md
+  - Home: docs/index.md
+  - Course README: README.md
+  - Sprints:
+      - Sprint 0 — Orientation: sprints/00-orientation/README.md
+      - Sprint 0 cheat sheet: sprints/00-orientation/cheatsheet.md
+      - Sprint 0 pre-assessment: sprints/00-orientation/pre-assessment.md
+      - Sprint 1 — Architecture & I/O: sprints/01-architecture-and-io/README.md
+      - Sprint 1 cheat sheet: sprints/01-architecture-and-io/cheatsheet.md
+      - Sprint 1 flashcards: sprints/01-architecture-and-io/flashcards.md
+      - Sprint 2 — Digital Foundations: sprints/02-digital-foundations/README.md
+      - Sprint 2 cheat sheet: sprints/02-digital-foundations/cheatsheet.md
+      - Sprint 3 — Ladder & FBD: sprints/03-ladder-and-fbd/README.md
+      - Sprint 3 cheat sheet: sprints/03-ladder-and-fbd/cheatsheet.md
+      - Sprint 4 — IEC 61131-3 Languages: sprints/04-iec-61131-languages/README.md
+      - Sprint 4 cheat sheet: sprints/04-iec-61131-languages/cheatsheet.md
+      - Sprint 5 — Timers, Counters, Registers: sprints/05-timers-counters-registers/README.md
+      - Sprint 5 cheat sheet: sprints/05-timers-counters-registers/cheatsheet.md
+      - Sprint 6 — Design & Safety: sprints/06-program-design-and-safety/README.md
+      - Sprint 6 cheat sheet: sprints/06-program-design-and-safety/cheatsheet.md
+      - Capstone — Burner Sequence: sprints/07-capstone/README.md
+  - Challenge labs:
+      - Lab 01 — Traffic Light: challenge-labs/lab-01-traffic-light/README.md
+      - Lab 02 — Conveyor Sort: challenge-labs/lab-02-conveyor-sort/README.md
+      - Lab 03 — Tank Fill/Drain: challenge-labs/lab-03-tank-fill-drain/README.md
+      - Lab 04 — Batch Mixer: challenge-labs/lab-04-batch-mixer/README.md
+      - Lab 05 — Burner Sequence: challenge-labs/lab-05-burner-sequence/README.md
+      - Lab 06 — Emergency Stop: challenge-labs/lab-06-emergency-stop/README.md
+  - Reference:
+      - Glossary: reference/glossary.md
+      - IEC 61131-3 Quickref: reference/iec-61131-3-quickref.md
+      - Manufacturer Mapping: reference/manufacturer-mapping.md
+      - Further Reading: reference/further-reading.md
+  - Flashcards:
+      - All sprints (Obsidian): flashcards/obsidian/all-sprints.md
+  - Contributing: CONTRIBUTING.md

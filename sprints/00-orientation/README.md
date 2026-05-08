@@ -26,8 +26,8 @@ By the end of Sprint 0 you should:
 Click **Fork** in the top-right of the GitHub page. Clone your fork:
 
 ```bash
-git clone https://github.com/<your-username>/plc-fasttrack.git
-cd plc-fasttrack
+git clone https://github.com/<your-username>/PLC-Course.git
+cd PLC-Course
 ```
 
 ### 2. Python environment

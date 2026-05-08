@@ -177,6 +177,6 @@ with st.expander("💡 Try these scenarios"):
     )
 
 st.caption(
-    "Built for [PLC-FastTrack](https://github.com/your-username/plc-fasttrack) · "
+    "Built for [PLC-FastTrack](https://github.com/gaferto612/PLC-Course) · "
     "Sprint 1 — Architecture & I/O"
 )

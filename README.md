@@ -88,7 +88,7 @@ plc-fasttrack/
 
 ## 🌐 Live Course Site
 
-GitHub Pages renders this as a browsable course at **`https://<your-username>.github.io/plc-fasttrack/`** with embedded simulators and a progress leaderboard.
+GitHub Pages renders this as a browsable course at **<https://gaferto612.github.io/PLC-Course/>**, with every sprint, cheat sheet, lab and reference reachable from the side nav.
 
 ---
 
