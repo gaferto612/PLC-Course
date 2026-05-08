@@ -1,0 +1,30 @@
+What are the four phases of a PLC scan cycle, in order?
+What is the difference between sourcing (PNP) and sinking (NPN) inputs?
+Convert 173 decimal to binary and to BCD. Why are they different?
+Why is a 4-20 mA signal preferred over a 0-10 V signal for long cable runs?
+In ladder logic, what does a series connection of two NO contacts represent?
+What is the difference between a TON and a TOF timer?
+Why is double-coiling considered a programming bug?
+What does IEC 61131-3 standardize?
+Which of the five IEC 61131-3 languages is best suited for batch sequences?
+What is "scan time" and why does a fast input pulse risk being missed?
+Name three types of proximity sensors and what each detects.
+What is the difference between a Cat 0 stop and a Cat 1 stop?
+Why must STOP buttons typically be wired with NC contacts?
+What is a retentive timer and when would you use one?
+What does BCD stand for and where do you encounter it in industrial systems?
+Why is the watchdog timer important in a PLC?
+What is the function of an internal relay (memory bit) in a ladder program?
+How does a shift register help track parts on a conveyor?
+What is the difference between a safety relay and a safety PLC?
+What is FMEA and what does the RPN value tell you?
+Why is the seal-in latch the most common rung pattern in industrial control?
+What does SFC stand for and how does it differ visually from ladder?
+What hazard does the trial-for-ignition timeout protect against in burner control?
+Why might the same logic look different in IL on Siemens vs. Allen-Bradley?
+What is the typical scan time of a small modern PLC, and what extends it?
+Why do safety functions usually require dual-channel inputs?
+What is a "force" in PLC terminology and why is it dangerous to leave active?
+What does ISO 13849 measure and what is a Performance Level?
+Why is the SCL/ST language better than ladder for math-heavy operations?
+What is the typical fault behavior expected of a 4-20 mA transmitter when its wire breaks?

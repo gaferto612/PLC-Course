@@ -1,0 +1,13 @@
+{
+  "lab": "lab-05-burner-sequence",
+  "cases": [
+    {"name": "Start triggers purge", "scans": [{"inputs": {"Start": true, "Stop": false, "Reset": false, "EStop": true, "Flame_OK": false, "T_Purge_Done": false, "T_TFI_Done": false, "T_PostPurge_Done": false, "Phase": 0}, "expect": {"Phase": 1, "Y_Fan": true, "Y_Igniter": false}}]},
+    {"name": "Purge done → pilot", "scans": [{"inputs": {"Start": false, "Stop": false, "Reset": false, "EStop": true, "Flame_OK": false, "T_Purge_Done": true, "T_TFI_Done": false, "T_PostPurge_Done": false, "Phase": 1}, "expect": {"Phase": 2, "Y_Pilot": true, "Y_Igniter": true}}]},
+    {"name": "Pilot ignites → main", "scans": [{"inputs": {"Start": false, "Stop": false, "Reset": false, "EStop": true, "Flame_OK": true, "T_Purge_Done": false, "T_TFI_Done": false, "T_PostPurge_Done": false, "Phase": 2}, "expect": {"Phase": 3, "Y_Main": true, "Y_Igniter": false}}]},
+    {"name": "TFI timeout → lockout", "scans": [{"inputs": {"Start": false, "Stop": false, "Reset": false, "EStop": true, "Flame_OK": false, "T_Purge_Done": false, "T_TFI_Done": true, "T_PostPurge_Done": false, "Phase": 2}, "expect": {"Phase": 5, "Alarm": true, "Y_Pilot": false, "Y_Main": false}}]},
+    {"name": "Flame loss during run → lockout", "scans": [{"inputs": {"Start": false, "Stop": false, "Reset": false, "EStop": true, "Flame_OK": false, "T_Purge_Done": false, "T_TFI_Done": false, "T_PostPurge_Done": false, "Phase": 3}, "expect": {"Phase": 5, "Alarm": true}}]},
+    {"name": "Stop → post-purge", "scans": [{"inputs": {"Start": false, "Stop": true, "Reset": false, "EStop": true, "Flame_OK": true, "T_Purge_Done": false, "T_TFI_Done": false, "T_PostPurge_Done": false, "Phase": 3}, "expect": {"Phase": 4, "Y_Main": false, "Y_Fan": true}}]},
+    {"name": "EStop forces lockout from running", "scans": [{"inputs": {"Start": false, "Stop": false, "Reset": false, "EStop": false, "Flame_OK": true, "T_Purge_Done": false, "T_TFI_Done": false, "T_PostPurge_Done": false, "Phase": 3}, "expect": {"Phase": 5, "Alarm": true}}]},
+    {"name": "Reset clears lockout", "scans": [{"inputs": {"Start": false, "Stop": false, "Reset": true, "EStop": true, "Flame_OK": false, "T_Purge_Done": false, "T_TFI_Done": false, "T_PostPurge_Done": false, "Phase": 5}, "expect": {"Phase": 0, "Alarm": false}}]}
+  ]
+}

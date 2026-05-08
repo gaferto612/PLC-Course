@@ -1,0 +1,10 @@
+flowchart LR
+    A[1. Read Inputs<br/>Sample all physical<br/>inputs into RAM] --> B[2. Execute Program<br/>Run rungs against<br/>input image]
+    B --> C[3. Update Outputs<br/>Write output image<br/>to physical outputs]
+    C --> D[4. Housekeeping<br/>Comms, diagnostics,<br/>watchdog reset]
+    D --> A
+
+    style A fill:#3b82f6,color:#fff
+    style B fill:#22c55e,color:#fff
+    style C fill:#f59e0b,color:#fff
+    style D fill:#a855f7,color:#fff

@@ -1,0 +1,68 @@
+{
+  "lab": "lab-01-traffic-light",
+  "cases": [
+    {
+      "name": "Initial — all stopped, all red",
+      "scans": [
+        {
+          "inputs": { "Start": false, "Stop": false, "T_Green_Done": false, "T_Yellow_Done": false, "Phase": 0 },
+          "expect": { "Sequence_Active": false, "RedNS": true, "RedEW": true, "Phase": 0 }
+        }
+      ]
+    },
+    {
+      "name": "Start → NS green",
+      "scans": [
+        {
+          "inputs": { "Start": true, "Stop": false, "T_Green_Done": false, "T_Yellow_Done": false, "Phase": 0 },
+          "expect": { "Sequence_Active": true, "GreenNS": true, "RedEW": true, "Phase": 1 }
+        }
+      ]
+    },
+    {
+      "name": "NS green timer done → NS yellow",
+      "scans": [
+        {
+          "inputs": { "Start": false, "Stop": false, "T_Green_Done": true, "T_Yellow_Done": false, "Phase": 1 },
+          "expect": { "YellowNS": true, "RedEW": true, "Phase": 2 }
+        }
+      ]
+    },
+    {
+      "name": "NS yellow done → EW green",
+      "scans": [
+        {
+          "inputs": { "Start": false, "Stop": false, "T_Green_Done": false, "T_Yellow_Done": true, "Phase": 2 },
+          "expect": { "RedNS": true, "GreenEW": true, "Phase": 3 }
+        }
+      ]
+    },
+    {
+      "name": "EW green done → EW yellow",
+      "scans": [
+        {
+          "inputs": { "Start": false, "Stop": false, "T_Green_Done": true, "T_Yellow_Done": false, "Phase": 3 },
+          "expect": { "RedNS": true, "YellowEW": true, "Phase": 4 }
+        }
+      ]
+    },
+    {
+      "name": "EW yellow done → back to NS green",
+      "scans": [
+        {
+          "inputs": { "Start": false, "Stop": false, "T_Green_Done": false, "T_Yellow_Done": true, "Phase": 4 },
+          "expect": { "GreenNS": true, "RedEW": true, "Phase": 1 }
+        }
+      ]
+    },
+    {
+      "name": "Stop pressed during EW green → all stop",
+      "scans": [
+        {
+          "inputs": { "Start": false, "Stop": true, "T_Green_Done": false, "T_Yellow_Done": false, "Phase": 3 },
+          "expect": { "Sequence_Active": false, "RedNS": true, "RedEW": true, "Phase": 0 }
+        }
+      ]
+    }
+  ]
+}

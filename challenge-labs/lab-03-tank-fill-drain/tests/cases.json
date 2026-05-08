@@ -1,0 +1,41 @@
+{
+  "lab": "lab-03-tank-fill-drain",
+  "cases": [
+    {
+      "name": "Idle — no outputs",
+      "scans": [
+        {"inputs": {"Start": false, "Stop": false, "EStop": true, "Level_Pct": 50, "Hold_Done": false, "Phase": 0}, "expect": {"Inlet_Valve": false, "Outlet_Valve": false, "Cycle_Active": false}}
+      ]
+    },
+    {
+      "name": "Start triggers fill",
+      "scans": [
+        {"inputs": {"Start": true, "Stop": false, "EStop": true, "Level_Pct": 50, "Hold_Done": false, "Phase": 0}, "expect": {"Phase": 1, "Inlet_Valve": true, "Cycle_Active": true}}
+      ]
+    },
+    {
+      "name": "Fill complete at 80% → hold",
+      "scans": [
+        {"inputs": {"Start": false, "Stop": false, "EStop": true, "Level_Pct": 80, "Hold_Done": false, "Phase": 1}, "expect": {"Phase": 2, "Inlet_Valve": false, "Hold_Timer_EN": true}}
+      ]
+    },
+    {
+      "name": "Hold complete → drain",
+      "scans": [
+        {"inputs": {"Start": false, "Stop": false, "EStop": true, "Level_Pct": 80, "Hold_Done": true, "Phase": 2}, "expect": {"Phase": 3, "Outlet_Valve": true}}
+      ]
+    },
+    {
+      "name": "Drained → idle",
+      "scans": [
+        {"inputs": {"Start": false, "Stop": false, "EStop": true, "Level_Pct": 10, "Hold_Done": false, "Phase": 3}, "expect": {"Phase": 0, "Outlet_Valve": false, "Cycle_Active": false}}
+      ]
+    },
+    {
+      "name": "EStop aborts cycle",
+      "scans": [
+        {"inputs": {"Start": false, "Stop": false, "EStop": false, "Level_Pct": 50, "Hold_Done": false, "Phase": 1}, "expect": {"Phase": 0, "Inlet_Valve": false, "Outlet_Valve": false}}
+      ]
+    }
+  ]
+}

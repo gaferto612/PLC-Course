@@ -1,0 +1,11 @@
+{
+  "lab": "lab-06-emergency-stop",
+  "cases": [
+    {"name": "Faulted, no reset, stay faulted", "scans": [{"inputs": {"EStop_OK": true, "Reset": false, "Start": false, "Drive_AtZero": true, "T_Decel_Done": false, "State": 0}, "expect": {"State": 0, "Ready": false, "Power_Permit": false}}]},
+    {"name": "Reset → ready", "scans": [{"inputs": {"EStop_OK": true, "Reset": true, "Start": false, "Drive_AtZero": true, "T_Decel_Done": false, "State": 0}, "expect": {"State": 1, "Ready": true, "Power_Permit": true}}]},
+    {"name": "Start → running", "scans": [{"inputs": {"EStop_OK": true, "Reset": false, "Start": true, "Drive_AtZero": false, "T_Decel_Done": false, "State": 1}, "expect": {"State": 2, "Drive_Run_Cmd": true}}]},
+    {"name": "EStop while running → stopping", "scans": [{"inputs": {"EStop_OK": false, "Reset": false, "Start": false, "Drive_AtZero": false, "T_Decel_Done": false, "State": 2}, "expect": {"State": 3, "Drive_Run_Cmd": false, "Drive_Stop_Cmd": true, "Power_Permit": true}}]},
+    {"name": "Decel done → faulted", "scans": [{"inputs": {"EStop_OK": false, "Reset": false, "Start": false, "Drive_AtZero": true, "T_Decel_Done": true, "State": 3}, "expect": {"State": 0, "Power_Permit": false}}]},
+    {"name": "Cannot reset while drive moving", "scans": [{"inputs": {"EStop_OK": true, "Reset": true, "Start": false, "Drive_AtZero": false, "T_Decel_Done": false, "State": 0}, "expect": {"State": 0, "Ready": false}}]}
+  ]
+}

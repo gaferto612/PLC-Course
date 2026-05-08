@@ -1,0 +1,10 @@
+{
+  "lab": "lab-04-batch-mixer",
+  "cases": [
+    {"name": "Start → water", "scans": [{"inputs": {"Start": true, "Stop": false, "EStop": true, "Phase": 0, "Flow_Total": 0, "Weight_Total": 0, "Mix_Done": false, "Tank_Empty": false}, "expect": {"Phase": 1, "Y_Water": true}}]},
+    {"name": "Water done → sugar", "scans": [{"inputs": {"Start": false, "Stop": false, "EStop": true, "Phase": 1, "Flow_Total": 50, "Weight_Total": 0, "Mix_Done": false, "Tank_Empty": false}, "expect": {"Phase": 2, "Y_Sugar": true, "Y_Water": false}}]},
+    {"name": "Sugar done → mix", "scans": [{"inputs": {"Start": false, "Stop": false, "EStop": true, "Phase": 2, "Flow_Total": 50, "Weight_Total": 25, "Mix_Done": false, "Tank_Empty": false}, "expect": {"Phase": 3, "Mixer_Run": true}}]},
+    {"name": "Mix done → drain", "scans": [{"inputs": {"Start": false, "Stop": false, "EStop": true, "Phase": 3, "Flow_Total": 50, "Weight_Total": 25, "Mix_Done": true, "Tank_Empty": false}, "expect": {"Phase": 4, "Y_Drain": true, "Mixer_Run": false}}]},
+    {"name": "Tank empty → idle", "scans": [{"inputs": {"Start": false, "Stop": false, "EStop": true, "Phase": 4, "Flow_Total": 50, "Weight_Total": 25, "Mix_Done": true, "Tank_Empty": true}, "expect": {"Phase": 0, "Y_Drain": false}}]}
+  ]
+}

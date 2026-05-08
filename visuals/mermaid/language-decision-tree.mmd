@@ -1,0 +1,24 @@
+flowchart TD
+    Start([New programming task]) --> Q1{Is it a<br/>step-by-step<br/>sequence?}
+    Q1 -->|Yes| SFC[/Sequential Function Chart<br/>SFC / GRAPH/]
+    Q1 -->|No| Q2{Heavy math,<br/>loops, or string<br/>handling?}
+    Q2 -->|Yes| ST[/Structured Text<br/>ST / SCL/]
+    Q2 -->|No| Q3{Reusable<br/>analog or<br/>signal-flow block?}
+    Q3 -->|Yes| FBD[/Function Block Diagram<br/>FBD / FUP/]
+    Q3 -->|No| Q4{Combinatorial<br/>interlocks or<br/>relay-replacement?}
+    Q4 -->|Yes| LD[/Ladder Diagram<br/>LD / KOP/]
+    Q4 -->|No| Q5{Legacy code<br/>or low-level<br/>optimization?}
+    Q5 -->|Yes| IL[/Instruction List<br/>IL / AWL — deprecated/]
+    Q5 -->|No| Reconsider([Re-scope the task])
+
+    SFC --> Tip1[💡 Best for batch,<br/>burner start-up,<br/>recipe control]
+    ST --> Tip2[💡 Best for PID tuning,<br/>data manipulation,<br/>complex conditions]
+    FBD --> Tip3[💡 Best for process<br/>control loops and<br/>library functions]
+    LD --> Tip4[💡 Best for safety<br/>interlocks and<br/>discrete I/O]
+    IL --> Tip5[⚠️ Avoid for new projects<br/>— prefer ST]
+
+    style SFC fill:#4a9eff,color:#fff
+    style ST fill:#22c55e,color:#fff
+    style FBD fill:#a855f7,color:#fff
+    style LD fill:#f59e0b,color:#fff
+    style IL fill:#94a3b8,color:#fff

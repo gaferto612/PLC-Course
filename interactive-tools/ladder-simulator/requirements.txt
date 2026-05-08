@@ -1,0 +1,2 @@
+# Bare minimum for the auto-grader (which is pure stdlib)
+# The Ladder Playground itself is a static React app — no Python deps for it.

@@ -1,0 +1,36 @@
+{
+  "lab": "lab-02-conveyor-sort",
+  "cases": [
+    {
+      "name": "Short box detected, no rejection",
+      "scans": [
+        { "inputs": {"Sensor_Low": true, "Sensor_High": false, "Index_Pulse": false, "EStop": true, "Last_Index": false}, "expect": {"Tall_Detected": false} }
+      ]
+    },
+    {
+      "name": "Tall box detection",
+      "scans": [
+        { "inputs": {"Sensor_Low": true, "Sensor_High": true, "Index_Pulse": false, "EStop": true, "Last_Index": false}, "expect": {"Tall_Detected": true} }
+      ]
+    },
+    {
+      "name": "Tall box shifts through to reject",
+      "scans": [
+        { "inputs": {"Sensor_Low": true, "Sensor_High": true, "Index_Pulse": true, "EStop": true, "Last_Index": false, "Track_P0": false, "Track_P1": false, "Track_P2": false, "Track_P3": false, "Track_P4": false}, "expect": {"Track_P0": true, "Track_P4": false, "Reject_Sol": false} }
+      ]
+    },
+    {
+      "name": "After 4 indexes a tall box reaches reject",
+      "scans": [
+        { "inputs": {"Sensor_Low": false, "Sensor_High": false, "Index_Pulse": false, "EStop": true, "Last_Index": false, "Track_P0": false, "Track_P1": false, "Track_P2": false, "Track_P3": true, "Track_P4": false}, "expect": {"Reject_Sol": false} },
+        { "inputs": {"Index_Pulse": true, "Last_Index": false}, "expect": {"Track_P4": true, "Reject_Sol": true} }
+      ]
+    },
+    {
+      "name": "EStop clears everything",
+      "scans": [
+        { "inputs": {"Sensor_Low": false, "Sensor_High": false, "Index_Pulse": false, "EStop": false, "Last_Index": false, "Track_P0": true, "Track_P1": true, "Track_P2": true, "Track_P3": true, "Track_P4": true}, "expect": {"Track_P0": false, "Track_P4": false, "Reject_Sol": false} }
+      ]
+    }
+  ]
+}
