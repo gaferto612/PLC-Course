@@ -26,7 +26,7 @@
 ## 🗂️ Materials
 
 - 📄 [Cheat sheet](cheatsheet.md)
-- 🪜 [Ladder Playground (React)](../../interactive-tools/ladder-simulator/)
+- 🪜 [Ladder Playground](../../interactive-tools/ladder-simulator/index.html) — open in any browser, no install
 - 🧮 [Workbook](../../workbooks/03-ladder-translation.ipynb)
 - 🧪 [Lab 02: Conveyor Sort by Height](../../challenge-labs/lab-02-conveyor-sort/)
 

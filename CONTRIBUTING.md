@@ -11,14 +11,15 @@ Open a PR directly. Small fixes don't need an Issue first.
 Labs live in `/challenge-labs/lab-XX-name/`. Each lab needs:
 - `README.md` — the problem statement and I/O list
 - `solution-template.st` — a structured text skeleton
-- `tests/` — test vectors as JSON (see existing labs for format)
-- `discussion.md` — link to a Discussions thread
+- `tests/` — at least one JSON file of test vectors (see existing labs for format)
 
 ### 🌍 Add manufacturer translations
 The same logic looks slightly different in Siemens SCL, Allen-Bradley Logix, and CODESYS. Add entries to `reference/manufacturer-mapping.md`.
 
 ### 🎨 Improve visuals
-Mermaid diagrams in `/visuals/mermaid/` and Excalidraw files in `/visuals/excalidraw/` are all editable. PRs that improve clarity are very welcome.
+Mermaid diagram sources live in `/visuals/mermaid/` and are editable as plain
+text. PRs that improve clarity are very welcome — additional formats (SVG,
+Excalidraw, etc.) are also welcome alongside the Mermaid source.
 
 ### 🧠 Add flashcards
 Add cards to `/flashcards/obsidian/` in the spaced-repetition format. Tag them by sprint.
@@ -31,10 +32,9 @@ Add cards to `/flashcards/obsidian/` in the spaced-repetition format. Tag them b
 
 ## PR Checklist
 
-- [ ] Tests pass (`pytest` in the repo root)
-- [ ] New labs have ≥5 test vectors
-- [ ] Visuals have an editable source file, not just a PNG
-- [ ] You've added yourself to `CONTRIBUTORS.md` if it's your first PR
+- [ ] If you changed a lab solution, the auto-grader (`python interactive-tools/ladder-simulator/grader.py --report /tmp/report.md`) passes locally
+- [ ] New labs ship with ≥5 test vectors
+- [ ] Visuals include an editable source file (Mermaid `.mmd`, SVG, etc.), not just a rendered PNG
 
 ## Code of Conduct
 

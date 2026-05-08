@@ -32,11 +32,23 @@ cd PLC-Course
 
 ### 2. Python environment
 
+The interactive tools live under `interactive-tools/`. Each tool has its own
+`requirements.txt` so you can install only what you need. To grab everything
+the course uses in one shot:
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate          # on Windows: .venv\Scripts\activate
-pip install -r interactive-tools/ladder-simulator/requirements.txt
+
+# Streamlit tools (Sprint 1 scan visualizer, Sprint 5 timer/counter)
+pip install -r interactive-tools/scan-cycle-visualizer/requirements.txt
+
+# Gradio tool (Sprint 2 number converter)
+pip install -r interactive-tools/number-converter/requirements.txt
 ```
+
+The Ladder Playground (`interactive-tools/ladder-simulator/index.html`) is a
+single static page — open it in any browser, no Python install needed.
 
 ### 3. Open your six sprint-progress Issues
 
@@ -44,7 +56,14 @@ Use the `🏃 Sprint Progress Tracker` template — one Issue per sprint. This i
 
 ### 4. Install Anki (optional but recommended)
 
-[apps.ankiweb.net](https://apps.ankiweb.net/) — then import `flashcards/anki/plc-fasttrack.apkg`.
+Install [Anki](https://apps.ankiweb.net/). The course's flashcards live as
+markdown in `flashcards/obsidian/all-sprints.md`. Until the prebuilt
+`.apkg` ships, the simplest paths are:
+
+- Open the markdown in Obsidian with the Spaced Repetition plugin, **or**
+- Paste the Q/A pairs into Anki's basic-card creator.
+
+See `flashcards/anki/README.md` for details.
 
 ---
 

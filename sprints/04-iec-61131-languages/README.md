@@ -26,7 +26,8 @@
 
 - 📄 [Cheat sheet](cheatsheet.md)
 - 🔄 [Translate-the-Rung Workbook](../../workbooks/04-st-vs-il.ipynb)
-- 🧭 SFC visualizer — see [interactive-tools/](../../interactive-tools/)
+- 🧭 SFC sketching — use the [Mermaid `flowchart`](../../visuals/mermaid/) syntax
+  used in the capstone diagram, or pencil-and-paper before you commit to text
 - 🃏 Sprint-4 flashcards
 - 📜 [IEC 61131-3 Quick Reference](../../reference/iec-61131-3-quickref.md)
 
@@ -37,7 +38,7 @@
 **Day 1** — Read Ch. 6 sections on IL and ST. Write Hello-PLC: blink an output once a second in ST.
 **Day 2** — Read Ch. 6 SFC section. Build a 5-step coffee-machine SFC on paper.
 **Day 3** — Translate-the-Rung workbook: 10 ladder rungs → IL and ST equivalents.
-**Day 4** — Implement your coffee SFC in the SFC visualizer.
+**Day 4** — Render your coffee SFC as a Mermaid flowchart and write the matching ST actions for each step.
 **Day 5** — Use the language decision tree to plan how you'd structure a complete tank-fill program (preview of Sprint 5 lab).
 
 ---

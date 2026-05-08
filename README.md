@@ -15,7 +15,7 @@ Bolton's book is a fantastic foundation — 398 pages covering architecture, the
 - **Interactive tools** (Streamlit + Gradio) for scan cycles, number bases, timers
 - **Challenge labs** that auto-grade your structured text submissions
 - **Flashcards** (Anki + Obsidian) for spaced-repetition retention
-- **Visual assets** (Mermaid + Excalidraw) you can edit and remix
+- **Visual assets** (Mermaid sources) you can edit and remix
 
 ---
 
@@ -70,7 +70,7 @@ Plus the **[Capstone](sprints/07-capstone/)** — a complete burner start-up seq
 ```
 plc-fasttrack/
 ├── sprints/              # The six-week curriculum
-├── visuals/              # Mermaid, Excalidraw, infographics
+├── visuals/              # Mermaid diagram sources
 ├── interactive-tools/    # Streamlit + Gradio simulators
 ├── workbooks/            # Jupyter notebooks
 ├── challenge-labs/       # Auto-graded structured text labs
