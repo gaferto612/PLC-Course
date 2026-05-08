@@ -22,6 +22,7 @@
     color: var(--text);
     font-family: -apple-system, system-ui, sans-serif;
     padding: 20px;
+    min-height: 100vh;
   }
   header { margin-bottom: 24px; }
   h1 { margin: 0 0 8px; }
@@ -29,8 +30,12 @@
 
   .layout {
     display: grid;
-    grid-template-columns: 240px 1fr;
+    grid-template-columns: 260px 1fr;
     gap: 20px;
+    align-items: flex-start;
+  }
+  @media (max-width: 720px) {
+    .layout { grid-template-columns: 1fr; }
   }
 
   .panel {
@@ -50,6 +55,7 @@
     font-weight: 600;
     font-family: monospace;
     text-align: left;
+    transition: background 0.15s, color 0.15s;
   }
   .toggle-btn.on {
     background: var(--energized);
@@ -57,48 +63,52 @@
   }
 
   .ladder-area {
-    min-height: 400px;
     background: var(--panel);
     padding: 24px;
     border-radius: 8px;
+    overflow-x: auto;
   }
 
   .rung {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     margin-bottom: 24px;
-    height: 60px;
+    min-height: 80px;
   }
   .rail-left, .rail-right {
     width: 4px;
-    height: 60px;
     background: var(--rail);
+    flex-shrink: 0;
   }
   .wire {
     height: 3px;
     background: var(--rail);
+    align-self: center;
     flex: 0 0 auto;
     transition: background 0.15s;
   }
   .wire.energized { background: var(--energized); }
-  .wire-fill { flex: 1; }
+  .wire-fill { flex: 1; min-width: 16px; }
 
   .contact, .coil {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 4px;
+    justify-content: center;
+    margin: 0 2px;
     padding: 4px 8px;
+    align-self: center;
   }
   .contact-symbol {
     font-family: monospace;
     font-size: 24px;
     color: var(--text);
+    line-height: 1;
   }
   .contact.active .contact-symbol { color: var(--energized); }
   .coil-symbol {
     font-family: monospace;
-    font-size: 24px;
+    font-size: 22px;
     color: var(--text);
     border: 2px solid var(--rail);
     border-radius: 50%;
@@ -116,7 +126,31 @@
     font-size: 11px;
     margin-top: 4px;
     color: var(--muted);
+    white-space: nowrap;
   }
+
+  .parallel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex: 0 0 auto;
+    position: relative;
+    padding: 0 6px;
+  }
+  .parallel .branch {
+    display: flex;
+    align-items: center;
+    margin: 6px 0;
+  }
+  /* The two vertical drops that join parallel branches to the surrounding wires */
+  .v-bar {
+    width: 3px;
+    background: var(--rail);
+    align-self: stretch;
+    flex: 0 0 3px;
+    transition: background 0.15s;
+  }
+  .v-bar.energized { background: var(--energized); }
 
   select, button {
     background: var(--bg);
@@ -132,6 +166,7 @@
     border-color: var(--accent);
     cursor: pointer;
   }
+  button.primary:hover { filter: brightness(1.1); }
 
   .truth-table {
     width: 100%;
@@ -149,42 +184,66 @@
   .truth-table td.false { color: var(--muted); }
 
   details summary { cursor: pointer; padding: 8px 0; }
+  details[open] summary { margin-bottom: 8px; }
+
+  .legend {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  kbd {
+    background: var(--bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--rail);
+    font-family: monospace;
+    font-size: 11px;
+  }
 </style>
 </head>
 <body>
 
 <header>
   <h1>🪜 Ladder Playground</h1>
-  <p class="muted">Sprint 3 companion · Bolton Ch. 5 · Click toggles to energize inputs</p>
+  <p class="muted">Sprint 3 companion · Bolton Ch. 5 · Click the toggles on the left to energize each input.</p>
 </header>
 
 <div class="layout">
 
   <aside class="panel">
-    <h3>Inputs</h3>
-    <div class="toggles">
-      <button class="toggle-btn" data-input="A">A: false</button>
-      <button class="toggle-btn" data-input="B">B: false</button>
-      <button class="toggle-btn" data-input="START">START: false</button>
-      <button class="toggle-btn" data-input="STOP">STOP: false</button>
-    </div>
+    <h3 style="margin-top:0">Inputs</h3>
+    <div class="toggles" id="toggles"></div>
 
     <h3 style="margin-top:24px">Preset</h3>
     <select id="preset">
       <option value="and">AND gate</option>
       <option value="or">OR gate</option>
+      <option value="not">NOT gate</option>
+      <option value="nand">NAND gate</option>
+      <option value="nor">NOR gate</option>
       <option value="xor">XOR gate</option>
+      <option value="xnor">XNOR gate</option>
       <option value="seal-in">Seal-in latch (motor start/stop)</option>
+      <option value="sr">SR latch (set/reset)</option>
     </select>
     <br/><br/>
     <button class="primary" id="loadBtn">Load preset</button>
+
+    <p class="legend">
+      <span style="color: var(--energized)">●</span> green wire = energized<br/>
+      <span style="color: var(--rail)">●</span> grey wire = de-energized
+    </p>
   </aside>
 
   <main>
     <div class="ladder-area" id="ladder"></div>
 
-    <details class="panel" style="margin-top:16px">
+    <details class="panel" style="margin-top:16px" open>
       <summary><strong>📋 Truth table</strong></summary>
+      <p class="muted" style="margin: 0 0 8px; font-size: 13px;">
+        Each row is computed from a clean reset (latched coils start de-energized) so you see
+        the rung's combinational behaviour. To watch a latch <em>seal in</em>, use the toggles above.
+      </p>
       <table class="truth-table" id="truthTable"></table>
     </details>
 
@@ -196,79 +255,136 @@
 </div>
 
 <script>
+// ─── Presets ──────────────────────────────────────────────────────────────
+// Each rung is { branches: [[contact, contact, ...], ...], coil: 'Y' }
+// A branch is an ordered list of contacts in series.
+// Multiple branches form parallel paths between the same two nodes.
+// `seriesAfter` is an extra series-section appended to the rung after the
+// (optionally parallel) head section.
+// A contact is { var: 'A', no: true }  — `no:true` is normally-open, `no:false` normally-closed.
 const presets = {
   'and': {
     name: 'AND gate',
     desc: 'Two NO contacts in series. Output Y is energized only when both A AND B are true.',
-    rungs: [{ contacts: [{var:'A',no:true},{var:'B',no:true}], coil: 'Y' }],
-    inputs: ['A','B']
+    rungs: [{ branches: [[{var:'A',no:true},{var:'B',no:true}]], coil: 'Y' }],
+    inputs: ['A','B'],
   },
   'or': {
     name: 'OR gate',
     desc: 'Two NO contacts in parallel. Output Y is energized when A OR B is true.',
-    rungs: [{ contacts: [[{var:'A',no:true}],[{var:'B',no:true}]], coil: 'Y', parallel: true }],
-    inputs: ['A','B']
+    rungs: [{ branches: [[{var:'A',no:true}], [{var:'B',no:true}]], coil: 'Y' }],
+    inputs: ['A','B'],
+  },
+  'not': {
+    name: 'NOT gate',
+    desc: 'A single NC contact. Output Y is energized when A is false.',
+    rungs: [{ branches: [[{var:'A',no:false}]], coil: 'Y' }],
+    inputs: ['A'],
+  },
+  'nand': {
+    name: 'NAND gate',
+    desc: 'Two NC contacts in parallel. Output Y is the negation of (A AND B).',
+    rungs: [{ branches: [[{var:'A',no:false}], [{var:'B',no:false}]], coil: 'Y' }],
+    inputs: ['A','B'],
+  },
+  'nor': {
+    name: 'NOR gate',
+    desc: 'Two NC contacts in series. Output Y is the negation of (A OR B).',
+    rungs: [{ branches: [[{var:'A',no:false},{var:'B',no:false}]], coil: 'Y' }],
+    inputs: ['A','B'],
   },
   'xor': {
     name: 'XOR gate',
-    desc: 'Output is energized when exactly one of A or B is true. Two parallel branches: (A AND NOT B) OR (NOT A AND B).',
+    desc: 'Two parallel branches: (A NO + B NC) OR (A NC + B NO). Energized when exactly one input is true.',
     rungs: [{
-      contacts: [
+      branches: [
         [{var:'A',no:true},{var:'B',no:false}],
-        [{var:'A',no:false},{var:'B',no:true}]
+        [{var:'A',no:false},{var:'B',no:true}],
       ],
       coil: 'Y',
-      parallel: true
     }],
-    inputs: ['A','B']
+    inputs: ['A','B'],
+  },
+  'xnor': {
+    name: 'XNOR gate',
+    desc: 'Two parallel branches: (A NO + B NO) OR (A NC + B NC). Energized when A and B match.',
+    rungs: [{
+      branches: [
+        [{var:'A',no:true},{var:'B',no:true}],
+        [{var:'A',no:false},{var:'B',no:false}],
+      ],
+      coil: 'Y',
+    }],
+    inputs: ['A','B'],
   },
   'seal-in': {
     name: 'Seal-in latch',
-    desc: 'Classic motor start/stop. START energizes MOTOR; the MOTOR contact in parallel "seals" it on. STOP (NC) breaks the rung.',
+    desc: 'Classic motor start/stop. START energizes MOTOR; the MOTOR contact in parallel "seals" it on. STOP (NC) breaks the rung. Click START once, release, then click STOP to drop out.',
     rungs: [{
-      contacts: [
+      branches: [
         [{var:'START',no:true}],
-        [{var:'MOTOR',no:true}]
+        [{var:'MOTOR',no:true}],
       ],
       seriesAfter: [{var:'STOP',no:false}],
       coil: 'MOTOR',
-      parallel: true
     }],
-    inputs: ['START','STOP']
-  }
+    inputs: ['START','STOP'],
+    latched: ['MOTOR'],
+  },
+  'sr': {
+    name: 'SR latch (two rungs)',
+    desc: 'Two rungs use latch (L) and unlatch (U) coils. SET energizes Y; RESET drops it. Last rung wins on simultaneous activation — here RESET wins.',
+    rungs: [
+      { branches: [[{var:'SET',no:true}]], coil: 'Y', action: 'set' },
+      { branches: [[{var:'RESET',no:true}]], coil: 'Y', action: 'reset' },
+    ],
+    inputs: ['SET','RESET'],
+    latched: ['Y'],
+  },
 };
 
-let state = { A:false, B:false, START:false, STOP:false, MOTOR:false, Y:false };
+// ─── State ────────────────────────────────────────────────────────────────
+const FRESH_INPUTS = { A:false, B:false, START:false, STOP:false, SET:false, RESET:false };
+let state = { ...FRESH_INPUTS, MOTOR:false, Y:false };
 let currentPreset = 'and';
 
+// ─── Evaluation ───────────────────────────────────────────────────────────
+function contactPasses(c, st) {
+  return c.no ? !!st[c.var] : !st[c.var];
+}
+
 function evalRung(rung, st) {
-  let pathTrue;
-  if (rung.parallel) {
-    pathTrue = rung.contacts.some(branch =>
-      branch.every(c => c.no ? st[c.var] : !st[c.var])
-    );
-  } else {
-    pathTrue = rung.contacts.every(c => c.no ? st[c.var] : !st[c.var]);
-  }
+  const headTrue = rung.branches.some(branch => branch.every(c => contactPasses(c, st)));
   if (rung.seriesAfter) {
-    pathTrue = pathTrue && rung.seriesAfter.every(c => c.no ? st[c.var] : !st[c.var]);
+    return headTrue && rung.seriesAfter.every(c => contactPasses(c, st));
   }
-  return pathTrue;
+  return headTrue;
 }
 
 function evalAll(st) {
-  const newSt = {...st};
+  const newSt = { ...st };
   const preset = presets[currentPreset];
   preset.rungs.forEach(rung => {
     const out = evalRung(rung, newSt);
-    if (rung.coil === 'MOTOR') {
-      // Latching: only update if output coil is reachable through normal paths
-      newSt.MOTOR = out;
+    if (rung.action === 'set') {
+      if (out) newSt[rung.coil] = true;
+    } else if (rung.action === 'reset') {
+      if (out) newSt[rung.coil] = false;
     } else {
+      // Plain coil — drives directly. For a seal-in latch the latching
+      // behavior emerges naturally because the coil's own contact appears
+      // in the rung.
       newSt[rung.coil] = out;
     }
   });
   return newSt;
+}
+
+// ─── Rendering helpers ────────────────────────────────────────────────────
+function wire(live, fill = false, w = 16) {
+  const cls = live ? 'wire energized' : 'wire';
+  const extra = fill ? ' wire-fill' : '';
+  return `<div class="${cls}${extra}" style="${fill ? '' : `width:${w}px`}"></div>`;
 }
 
 function renderContact(c, energized) {
@@ -277,60 +393,104 @@ function renderContact(c, energized) {
   return `<div class="contact${cls}"><div class="contact-symbol">${sym}</div><div class="label">${c.var}</div></div>`;
 }
 
-function renderRung(rung, st) {
-  const wireClass = (live) => live ? 'wire energized' : 'wire';
-  let html = `<div class="rung"><div class="rail-left"></div>`;
+function renderBranch(branch, st) {
+  // Walk left-to-right: each wire segment is energized only if the cumulative
+  // path through preceding contacts is still passing.
+  let html = '';
+  let live = true;
+  branch.forEach((c, i) => {
+    html += wire(live);
+    const passes = contactPasses(c, st);
+    html += renderContact(c, live && passes);
+    live = live && passes;
+  });
+  html += wire(live);
+  return { html, live };
+}
 
-  if (rung.parallel) {
-    // Use a vertical block for parallel branches
-    html += `<div style="flex:1;display:flex;flex-direction:column;justify-content:space-around;height:60px">`;
-    rung.contacts.forEach(branch => {
-      const branchTrue = branch.every(c => c.no ? st[c.var] : !st[c.var]);
-      html += `<div style="display:flex;align-items:center"><div class="${wireClass(true)}" style="width:20px"></div>`;
-      branch.forEach(c => {
-        const energized = c.no ? st[c.var] : !st[c.var];
-        html += renderContact(c, energized);
-        html += `<div class="${wireClass(branchTrue)}" style="width:20px"></div>`;
-      });
-      html += `</div>`;
-    });
-    html += `</div>`;
-  } else {
-    rung.contacts.forEach(c => {
-      const energized = c.no ? st[c.var] : !st[c.var];
-      html += `<div class="${wireClass(true)}" style="width:30px"></div>`;
-      html += renderContact(c, energized);
-    });
+function renderHeadSection(rung, st) {
+  // Single branch — render inline with the rung wires.
+  if (rung.branches.length === 1) {
+    return renderBranch(rung.branches[0], st);
   }
 
-  const rungOut = evalRung(rung, st);
+  // Multiple parallel branches — wrap in a vertical block joined by two v-bars.
+  const branchResults = rung.branches.map(b => renderBranch(b, st));
+  const anyTrue = branchResults.some(r => r.live);
+
+  let html = '<div class="parallel">';
+  // Left vertical bar — energized if power has reached the parallel block at all.
+  html += `<div class="v-bar energized" style="position:absolute;left:0;top:0;bottom:0"></div>`;
+  // Right vertical bar — energized if at least one branch passed.
+  html += `<div class="v-bar ${anyTrue ? 'energized' : ''}" style="position:absolute;right:0;top:0;bottom:0"></div>`;
+  branchResults.forEach(r => {
+    html += `<div class="branch">${r.html}</div>`;
+  });
+  html += '</div>';
+  return { html, live: anyTrue };
+}
+
+function renderRung(rung, st) {
+  let html = `<div class="rung"><div class="rail-left"></div>`;
+  html += wire(true, false, 16);
+
+  const head = renderHeadSection(rung, st);
+  html += head.html;
+
+  let live = head.live;
   if (rung.seriesAfter) {
     rung.seriesAfter.forEach(c => {
-      const energized = c.no ? st[c.var] : !st[c.var];
-      html += `<div class="${wireClass(true)}" style="width:30px"></div>`;
-      html += renderContact(c, energized);
+      html += wire(live);
+      const passes = contactPasses(c, st);
+      html += renderContact(c, live && passes);
+      live = live && passes;
     });
   }
-  html += `<div class="${wireClass(rungOut)} wire-fill"></div>`;
-  html += `<div class="coil${rungOut ? ' energized' : ''}"><div class="coil-symbol">${rungOut?'●':'○'}</div><div class="label">${rung.coil}</div></div>`;
+
+  html += wire(live, true);
+
+  // Coil. SR latches use L / U notation in the symbol so it's clear
+  // which rung is set vs reset.
+  let coilSym = live ? '●' : '○';
+  if (rung.action === 'set') coilSym = 'L';
+  else if (rung.action === 'reset') coilSym = 'U';
+  const coilLive = live;
+  html += `<div class="coil${coilLive ? ' energized' : ''}"><div class="coil-symbol">${coilSym}</div><div class="label">${rung.coil}</div></div>`;
   html += `<div class="rail-right"></div></div>`;
   return html;
 }
 
+// ─── Top-level render ─────────────────────────────────────────────────────
+function rebuildToggles() {
+  const preset = presets[currentPreset];
+  const togglesDiv = document.getElementById('toggles');
+  togglesDiv.innerHTML = preset.inputs
+    .map(v => `<button class="toggle-btn" data-input="${v}">${v}: ${state[v] ? 'true' : 'false'}</button>`)
+    .join('');
+  togglesDiv.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.dataset.input;
+      state[v] = !state[v];
+      render();
+    });
+  });
+}
+
 function render() {
   const preset = presets[currentPreset];
+
+  // Two passes settle a latching coil within one click — the first pass writes
+  // the new coil value, the second pass observes its own contact.
   state = evalAll(state);
-  const newState = evalAll(state);
-  state = newState;
+  state = evalAll(state);
 
   document.getElementById('ladder').innerHTML = preset.rungs.map(r => renderRung(r, state)).join('');
   document.getElementById('presetDesc').textContent = preset.desc;
 
-  // Update buttons
   document.querySelectorAll('.toggle-btn').forEach(btn => {
     const v = btn.dataset.input;
     btn.classList.toggle('on', state[v] === true);
-    btn.textContent = `${v}: ${state[v]}`;
+    btn.textContent = `${v}: ${state[v] ? 'true' : 'false'}`;
   });
 
   renderTruthTable(preset);
@@ -338,46 +498,42 @@ function render() {
 
 function renderTruthTable(preset) {
   const inputs = preset.inputs;
-  const combos = [];
   const n = inputs.length;
+  const combos = [];
   for (let i = 0; i < (1 << n); i++) {
     const row = {};
-    inputs.forEach((v, idx) => row[v] = !!(i & (1 << (n-1-idx))));
+    inputs.forEach((v, idx) => row[v] = !!(i & (1 << (n - 1 - idx))));
     combos.push(row);
   }
-  const outputCoils = preset.rungs.map(r => r.coil);
+  const outputCoils = [...new Set(preset.rungs.map(r => r.coil))];
   let html = `<thead><tr>`;
   inputs.forEach(v => html += `<th>${v}</th>`);
   outputCoils.forEach(c => html += `<th>${c}</th>`);
   html += `</tr></thead><tbody>`;
   combos.forEach(combo => {
-    let trial = {...state, ...combo};
-    // For latch, simulate from a clean reset
-    if (currentPreset === 'seal-in') trial.MOTOR = false;
+    let trial = { ...FRESH_INPUTS, ...combo };
+    // Reset latched coils so each row shows the rung's own behaviour.
+    (preset.latched || []).forEach(v => trial[v] = false);
+    trial = evalAll(trial);
     trial = evalAll(trial);
     html += `<tr>`;
-    inputs.forEach(v => html += `<td class="${combo[v]?'true':'false'}">${combo[v]?'1':'0'}</td>`);
-    outputCoils.forEach(c => html += `<td class="${trial[c]?'true':'false'}">${trial[c]?'1':'0'}</td>`);
+    inputs.forEach(v => html += `<td class="${combo[v] ? 'true' : 'false'}">${combo[v] ? '1' : '0'}</td>`);
+    outputCoils.forEach(c => html += `<td class="${trial[c] ? 'true' : 'false'}">${trial[c] ? '1' : '0'}</td>`);
     html += `</tr>`;
   });
   html += `</tbody>`;
   document.getElementById('truthTable').innerHTML = html;
 }
 
-document.querySelectorAll('.toggle-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const v = btn.dataset.input;
-    state[v] = !state[v];
-    render();
-  });
-});
-
+// ─── Wire-up ──────────────────────────────────────────────────────────────
 document.getElementById('loadBtn').addEventListener('click', () => {
   currentPreset = document.getElementById('preset').value;
-  state = { A:false, B:false, START:false, STOP:false, MOTOR:false, Y:false };
+  state = { ...FRESH_INPUTS, MOTOR: false, Y: false };
+  rebuildToggles();
   render();
 });
 
+rebuildToggles();
 render();
 </script>
 </body>

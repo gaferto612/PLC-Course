@@ -31,19 +31,41 @@ flowchart LR
 - **Flashcards** for spaced repetition
 - **Visual assets** — Mermaid diagrams and Excalidraw templates
 
-## Quick Start
+## Where to Start
 
-1. **Fork** the [GitHub repository](https://github.com/your-username/plc-fasttrack)
-2. Open your six sprint-progress Issues from the template
-3. Start with [Sprint 0](https://github.com/your-username/plc-fasttrack/tree/main/sprints/00-orientation)
-4. Submit lab solutions as PRs — the auto-grader reviews them
+1. **[Sprint 0 — Orientation](../sprints/00-orientation/README.md)** — set up your environment and take the pre-assessment
+2. **[Sprint 1 — Architecture & I/O](../sprints/01-architecture-and-io/README.md)** — Bolton chapters 1–2
+3. Work through one sprint per week. Each sprint = ~5–7 hours.
+4. Tackle the **[Capstone](../sprints/07-capstone/README.md)** when you're ready.
 
-## Live Tools
+## Sprint Index
 
-- **Scan Cycle Visualizer** — see the PLC scan loop in action *(Streamlit Cloud link goes here)*
-- **Number Base Converter** — convert across denary, binary, octal, hex, BCD *(link)*
-- **Timer/Counter Playground** — explore TON/TOF/TP/CTU timing diagrams *(link)*
-- **Ladder Playground** — interactive truth tables for the seven gates and latches *(link)*
+| # | Sprint | Bolton |
+|---|--------|--------|
+| 0 | [Orientation](../sprints/00-orientation/README.md) | Preface |
+| 1 | [Architecture & I/O](../sprints/01-architecture-and-io/README.md) | Ch. 1–2 |
+| 2 | [Digital Foundations](../sprints/02-digital-foundations/README.md) | Ch. 3–4 |
+| 3 | [Ladder & FBD](../sprints/03-ladder-and-fbd/README.md) | Ch. 5 |
+| 4 | [IEC 61131-3 Languages](../sprints/04-iec-61131-languages/README.md) | Ch. 6 |
+| 5 | [Timers, Counters, Registers](../sprints/05-timers-counters-registers/README.md) | Ch. 7–12 |
+| 6 | [Design & Safety](../sprints/06-program-design-and-safety/README.md) | Ch. 13–14 |
+| 🏆 | [Capstone — Burner Sequence](../sprints/07-capstone/README.md) | Synthesis |
+
+## Interactive Tools
+
+These are run locally — clone the repo and follow each tool's README to launch:
+
+- **[Scan Cycle Visualizer](../interactive-tools/scan-cycle-visualizer/README.md)** *(Streamlit)* — see how a slow scan misses a fast pulse
+- **Number Base Converter** *(Gradio)* — `interactive-tools/number-converter/`
+- **Timer / Counter Playground** *(Streamlit)* — `interactive-tools/timer-counter-playground/`
+- **[Ladder Playground](../interactive-tools/ladder-simulator/index.html)** *(plain HTML, runs in any browser)*
+
+## Reference
+
+- [Glossary](../reference/glossary.md)
+- [IEC 61131-3 Quick Reference](../reference/iec-61131-3-quickref.md)
+- [Manufacturer Mapping](../reference/manufacturer-mapping.md)
+- [Further Reading](../reference/further-reading.md)
 
 ## Source Text
 
@@ -53,7 +75,7 @@ This site is a **study companion** — it doesn't reproduce the book.
 
 ## Contributing
 
-Issues and PRs welcome on [GitHub](https://github.com/your-username/plc-fasttrack). See `CONTRIBUTING.md`.
+Issues and PRs welcome on [GitHub](https://github.com/gaferto612/PLC-Course). See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## License
 
