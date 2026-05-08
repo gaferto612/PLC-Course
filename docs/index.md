@@ -53,9 +53,12 @@ flowchart LR
 
 ## Interactive Tools
 
-The Streamlit and Gradio tools run locally — clone the repo, install the
-matching `requirements.txt`, and launch:
+Two of the tools run in the browser with zero install — open the HTML file
+and you're done. The rest are Streamlit / Gradio apps that need a quick
+`pip install` first.
 
+- **[🚗 Car Factory Simulator](../interactive-tools/car-factory-simulator/index.html)** *(static HTML)* — a four-station automotive line driven by a live SFC + ST program. Watch the floor animate from the PLC's output bits, with the active code line highlighted in real time.
+- **[🪜 Ladder Playground](../interactive-tools/ladder-simulator/index.html)** *(static HTML — open the file in any browser, no install needed)*
 - **[Scan Cycle Visualizer](../interactive-tools/scan-cycle-visualizer/README.md)** *(Streamlit)* — see how a slow scan misses a fast pulse
   ```bash
   pip install -r interactive-tools/scan-cycle-visualizer/requirements.txt
@@ -71,7 +74,6 @@ matching `requirements.txt`, and launch:
   pip install -r interactive-tools/timer-counter-playground/requirements.txt
   streamlit run interactive-tools/timer-counter-playground/app.py
   ```
-- **[Ladder Playground](../interactive-tools/ladder-simulator/index.html)** *(static HTML — open the file in any browser, no install needed)*
 
 ## Reference
 

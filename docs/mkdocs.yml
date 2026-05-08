@@ -76,8 +76,6 @@ not_in_nav: |
   /CONTRIBUTING.md
   /workbooks/README.md
   /flashcards/anki/README.md
-  /interactive-tools/scan-cycle-visualizer/README.md
-  /interactive-tools/ladder-simulator/README.md
 
 # MkDocs warns by default for things like absolute links — keep this informative
 # without breaking the build.
@@ -92,7 +90,6 @@ exclude_docs: |
   /.github/
   /.venv/
   /docs/mkdocs.yml
-  /interactive-tools/ladder-simulator/README.md
   *.ipynb_checkpoints/
 
 nav:
@@ -123,6 +120,10 @@ nav:
       - Lab 04 — Batch Mixer: challenge-labs/lab-04-batch-mixer/README.md
       - Lab 05 — Burner Sequence: challenge-labs/lab-05-burner-sequence/README.md
       - Lab 06 — Emergency Stop: challenge-labs/lab-06-emergency-stop/README.md
+  - Interactive tools:
+      - Car Factory Simulator: interactive-tools/car-factory-simulator/README.md
+      - Ladder Playground (notes): interactive-tools/ladder-simulator/README.md
+      - Scan Cycle Visualizer (notes): interactive-tools/scan-cycle-visualizer/README.md
   - Reference:
       - Glossary: reference/glossary.md
       - IEC 61131-3 Quickref: reference/iec-61131-3-quickref.md

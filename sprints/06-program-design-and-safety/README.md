@@ -28,6 +28,7 @@
 
 - 📄 [Cheat sheet](cheatsheet.md)
 - 🛡️ [Workbook: FMEA for a tank-fill system](../../workbooks/06-safety-fmea.ipynb)
+- 🚗 [Car Factory Simulator](../../interactive-tools/car-factory-simulator/index.html) — press its E-Stop and watch the latched-alarm / fail-safe pattern in action
 - 🧪 [Lab 06: Emergency Stop with Safety Relay](../../challenge-labs/lab-06-emergency-stop/README.md)
 
 ---
