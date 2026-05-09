@@ -12,7 +12,7 @@ Bolton's book is a fantastic foundation — 398 pages covering architecture, the
 
 - **6 sprints** of structured study (one per week)
 - **Cheat sheets** that compress each chapter to one page
-- **Interactive tools** (Streamlit + Gradio) for scan cycles, number bases, timers
+- **Interactive tools** that run in the browser — [scan cycle](interactive-tools/scan-cycle-visualizer/index.html), [number bases](interactive-tools/number-converter/index.html), [timers/counters](interactive-tools/timer-counter-playground/index.html), and a [full car-factory simulator](interactive-tools/car-factory-simulator/index.html)
 - **Challenge labs** that auto-grade your structured text submissions
 - **Flashcards** (Anki + Obsidian) for spaced-repetition retention
 - **Visual assets** (Mermaid sources) you can edit and remix
