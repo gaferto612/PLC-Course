@@ -12,10 +12,10 @@
 
 By the end of Sprint 0 you should:
 
-1. Have a working environment for Python, Jupyter, and Streamlit
-2. Have forked this repo and opened your six sprint-progress Issues
-3. Know roughly where you stand — the pre-assessment tells you what to focus on
-4. Have a copy of Bolton's *Programmable Logic Controllers, 5th Edition* on your desk
+1. Have forked this repo and opened your six sprint-progress Issues
+2. Know roughly where you stand — the pre-assessment tells you what to focus on
+3. Have a copy of Bolton's *Programmable Logic Controllers, 5th Edition* on your desk
+4. (Optional) Have a working Python environment if you want to run the workbooks or the legacy Streamlit/Gradio versions of the interactive tools locally
 
 ---
 
@@ -30,25 +30,28 @@ git clone https://github.com/<your-username>/PLC-Course.git
 cd PLC-Course
 ```
 
-### 2. Python environment
+### 2. Interactive tools — no install required
 
-The interactive tools live under `interactive-tools/`. Each tool has its own
-`requirements.txt` so you can install only what you need. To grab everything
-the course uses in one shot:
+Every interactive tool ships as a single static HTML page that runs in any
+browser. You can use them straight from the live course site:
+
+- [Number Base Converter](../../interactive-tools/number-converter/index.html) — Sprint 2
+- [Scan Cycle Visualizer](../../interactive-tools/scan-cycle-visualizer/index.html) — Sprint 1
+- [Timer / Counter Playground](../../interactive-tools/timer-counter-playground/index.html) — Sprint 5
+- [Ladder Playground](../../interactive-tools/ladder-simulator/index.html) — Sprints 3–6
+- [Car Factory Simulator](../../interactive-tools/car-factory-simulator/index.html) — capstone-level
+
+If you'd rather hack on the tools or run them offline, each folder also
+contains the original Streamlit / Gradio version (`app.py`) with its own
+`requirements.txt`. The workbooks under `workbooks/` are Jupyter notebooks
+and need a Python environment.
 
 ```bash
+# Optional — only if you want the Python versions locally
 python3 -m venv .venv
 source .venv/bin/activate          # on Windows: .venv\Scripts\activate
-
-# Streamlit tools (Sprint 1 scan visualizer, Sprint 5 timer/counter)
-pip install -r interactive-tools/scan-cycle-visualizer/requirements.txt
-
-# Gradio tool (Sprint 2 number converter)
-pip install -r interactive-tools/number-converter/requirements.txt
+pip install jupyter
 ```
-
-The Ladder Playground (`interactive-tools/ladder-simulator/index.html`) is a
-single static page — open it in any browser, no Python install needed.
 
 ### 3. Open your six sprint-progress Issues
 

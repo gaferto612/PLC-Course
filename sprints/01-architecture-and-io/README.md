@@ -35,7 +35,7 @@ You'll come back to Ch. 4 in Sprint 2 for the digital details.
 
 - 📄 **[Cheat sheet](cheatsheet.md)** — one-page distillation
 - 🧮 **[Workbook](../../workbooks/01-io-mapping.ipynb)** — map 10 devices, classify each
-- 🔧 **[Scan Cycle Visualizer](../../interactive-tools/scan-cycle-visualizer/README.md)** — animated demo
+- 🔧 **[Scan Cycle Visualizer](../../interactive-tools/scan-cycle-visualizer/index.html)** — animated demo, runs in the browser
 - 🧪 **[Lab 01: Traffic Light Controller](../../challenge-labs/lab-01-traffic-light/README.md)** — your first auto-graded submission
 - 🃏 **[Flashcards](flashcards.md)** — sprint-1 cards for spaced repetition
 

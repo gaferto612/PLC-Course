@@ -121,9 +121,11 @@ nav:
       - Lab 05 — Burner Sequence: challenge-labs/lab-05-burner-sequence/README.md
       - Lab 06 — Emergency Stop: challenge-labs/lab-06-emergency-stop/README.md
   - Interactive tools:
-      - Car Factory Simulator: interactive-tools/car-factory-simulator/README.md
-      - Ladder Playground (notes): interactive-tools/ladder-simulator/README.md
-      - Scan Cycle Visualizer (notes): interactive-tools/scan-cycle-visualizer/README.md
+      - Car Factory Simulator: interactive-tools/car-factory-simulator/index.html
+      - Ladder Playground: interactive-tools/ladder-simulator/index.html
+      - Number Base Converter: interactive-tools/number-converter/index.html
+      - Scan Cycle Visualizer: interactive-tools/scan-cycle-visualizer/index.html
+      - Timer / Counter Playground: interactive-tools/timer-counter-playground/index.html
   - Reference:
       - Glossary: reference/glossary.md
       - IEC 61131-3 Quickref: reference/iec-61131-3-quickref.md

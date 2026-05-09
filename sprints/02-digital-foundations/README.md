@@ -27,7 +27,7 @@
 
 - 📄 [Cheat sheet](cheatsheet.md)
 - 🧮 [Workbook](../../workbooks/02-number-systems.ipynb)
-- 🔢 Number Base Converter (Gradio) — `interactive-tools/number-converter/app.py`
+- 🔢 **[Number Base Converter](../../interactive-tools/number-converter/index.html)** — runs in the browser, no install
 - 🃏 Flashcards (in main flashcards bundle, tagged `sprint-2`)
 
 ---

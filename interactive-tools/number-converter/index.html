@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PLC-FastTrack — Number Base Converter</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-2: #0b1220;
+    --line: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #3b82f6;
+    --on: #22c55e;
+    --off: #475569;
+    --warn: #f59e0b;
+    --err: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, system-ui, "Segoe UI", sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  h1 { margin: 0; font-size: 22px; }
+  header .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  header a { color: var(--accent); text-decoration: none; }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 28px 60px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .panel h2 {
+    margin: 0 0 12px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 12px;
+    align-items: end;
+  }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  input[type="text"], select {
+    width: 100%;
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 16px;
+  }
+  input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .results {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .result {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .result .lbl { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.06em; }
+  .result .val {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 20px;
+    margin-top: 4px;
+    word-break: break-all;
+  }
+
+  .bits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+  }
+  .nibble {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .bit {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background: var(--off);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+  .bit.on { background: var(--on); color: #052e16; }
+  .bit-row { display: flex; gap: 2px; }
+  .bit-idx {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .bit-idx-row { display: flex; gap: 2px; }
+  .bit-idx-row span { width: 32px; text-align: center; }
+
+  .err {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--err);
+    color: #fca5a5;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .hidden { display: none; }
+
+  .examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .examples button {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .examples button:hover { border-color: var(--accent); }
+
+  .bcd-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .bcd-digit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .bcd-digit .digit-label {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 16px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .bcd-digit .nibble-display {
+    display: flex;
+    gap: 2px;
+  }
+  .bcd-digit .bit {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+    cursor: default;
+  }
+
+  .tips {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .tips code {
+    background: var(--panel-2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔢 Number Base Converter</h1>
+  <div class="sub">
+    Sprint 2 companion — Bolton Ch. 3 ·
+    <a href="../../README.md">PLC-FastTrack home</a>
+  </div>
+</header>
+
+<main>
+
+  <div class="panel">
+    <h2>Input</h2>
+    <div class="input-row">
+      <div>
+        <label for="value">Value</label>
+        <input id="value" type="text" value="173" autocomplete="off" spellcheck="false" />
+      </div>
+      <div>
+        <label for="base">Input base</label>
+        <select id="base">
+          <option value="10" selected>Denary (decimal)</option>
+          <option value="2">Binary</option>
+          <option value="8">Octal</option>
+          <option value="16">Hexadecimal</option>
+        </select>
+      </div>
+    </div>
+    <div class="examples">
+      <span style="color: var(--muted); font-size: 12px; align-self: center;">Try:</span>
+      <button data-value="173" data-base="10">173 dec</button>
+      <button data-value="2F" data-base="16">2F hex</button>
+      <button data-value="100" data-base="10">100 dec</button>
+      <button data-value="255" data-base="10">255 dec (0xFF)</button>
+      <button data-value="11010101" data-base="2">1101 0101 bin</button>
+    </div>
+    <div id="error" class="err hidden"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Representations</h2>
+    <div class="results">
+      <div class="result"><div class="lbl">Denary</div><div class="val" id="out-dec">—</div></div>
+      <div class="result"><div class="lbl">Binary (nibbles)</div><div class="val" id="out-bin">—</div></div>
+      <div class="result"><div class="lbl">Octal</div><div class="val" id="out-oct">—</div></div>
+      <div class="result"><div class="lbl">Hexadecimal</div><div class="val" id="out-hex">—</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Bit pattern <span style="color: var(--muted); font-weight: normal; font-size: 12px; text-transform: none; letter-spacing: 0;">(MSB on left — click any bit to toggle it)</span></h2>
+    <div id="bits" class="bits"></div>
+  </div>
+
+  <div class="panel">
+    <h2>BCD <span style="color: var(--muted); font-weight: normal; font-size: 12px; text-transform: none; letter-spacing: 0;">(4 bits per decimal digit — note this differs from pure binary)</span></h2>
+    <div id="bcd" class="bcd-row"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Why this matters</h2>
+    <div class="tips">
+      <p>PLC tags arrive in different bases depending on the device. Ladder logic
+      uses bits, analog cards return raw integers, HMI displays read BCD, and
+      memory addresses are typically printed in hex or octal. Fluency in
+      converting between them is mandatory.</p>
+      <p>Watch the difference between <code>100 dec</code> →
+      <code>0110 0100</code> in binary but <code>0001 0000 0000</code> in BCD.
+      That's why thumbwheel switches and 7-segment displays use BCD: each
+      decimal digit gets its own nibble.</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+(function () {
+  const valueEl = document.getElementById("value");
+  const baseEl = document.getElementById("base");
+  const errEl = document.getElementById("error");
+
+  const outDec = document.getElementById("out-dec");
+  const outBin = document.getElementById("out-bin");
+  const outOct = document.getElementById("out-oct");
+  const outHex = document.getElementById("out-hex");
+
+  const bitsEl = document.getElementById("bits");
+  const bcdEl = document.getElementById("bcd");
+
+  function chooseWidth(n) {
+    if (n < 256) return 8;
+    if (n < 65536) return 16;
+    return 32;
+  }
+
+  function nibbleGroups(bits) {
+    const groups = [];
+    for (let i = 0; i < bits.length; i += 4) groups.push(bits.slice(i, i + 4));
+    return groups;
+  }
+
+  function renderBits(n, width) {
+    bitsEl.innerHTML = "";
+    const bits = n.toString(2).padStart(width, "0");
+    const groups = nibbleGroups(bits);
+    let bitIdx = width - 1;
+    groups.forEach((nib) => {
+      const wrap = document.createElement("div");
+      wrap.className = "nibble";
+
+      const row = document.createElement("div");
+      row.className = "bit-row";
+      const idxRow = document.createElement("div");
+      idxRow.className = "bit-idx-row";
+
+      for (const ch of nib) {
+        const cell = document.createElement("div");
+        cell.className = "bit" + (ch === "1" ? " on" : "");
+        cell.textContent = ch;
+        const myIdx = bitIdx;
+        cell.addEventListener("click", () => {
+          const cur = parseCurrent();
+          if (cur === null) return;
+          const toggled = cur ^ (1 << myIdx);
+          if (toggled < 0 || toggled >= 2 ** 32) return;
+          setValue(toggled);
+        });
+        row.appendChild(cell);
+
+        const idx = document.createElement("span");
+        idx.className = "bit-idx";
+        idx.textContent = bitIdx;
+        idxRow.appendChild(idx);
+        bitIdx--;
+      }
+
+      wrap.appendChild(row);
+      wrap.appendChild(idxRow);
+      bitsEl.appendChild(wrap);
+    });
+  }
+
+  function renderBCD(n) {
+    bcdEl.innerHTML = "";
+    const digits = String(n).padStart(4, "0").split("");
+    digits.forEach((d) => {
+      const wrap = document.createElement("div");
+      wrap.className = "bcd-digit";
+
+      const lbl = document.createElement("div");
+      lbl.className = "digit-label";
+      lbl.textContent = d;
+
+      const nib = document.createElement("div");
+      nib.className = "nibble-display";
+      const bits = parseInt(d, 10).toString(2).padStart(4, "0");
+      for (const ch of bits) {
+        const cell = document.createElement("div");
+        cell.className = "bit" + (ch === "1" ? " on" : "");
+        cell.textContent = ch;
+        nib.appendChild(cell);
+      }
+
+      wrap.appendChild(lbl);
+      wrap.appendChild(nib);
+      bcdEl.appendChild(wrap);
+    });
+  }
+
+  function parseCurrent() {
+    const raw = valueEl.value.trim().replace(/\s+/g, "");
+    if (!raw) return null;
+    const base = parseInt(baseEl.value, 10);
+    const validChars = {
+      2: /^[01]+$/,
+      8: /^[0-7]+$/,
+      10: /^[0-9]+$/,
+      16: /^[0-9a-fA-F]+$/,
+    };
+    if (!validChars[base].test(raw)) return null;
+    const n = parseInt(raw, base);
+    if (!Number.isFinite(n) || n < 0 || n >= 2 ** 32) return null;
+    return n;
+  }
+
+  function setValue(n) {
+    const base = parseInt(baseEl.value, 10);
+    valueEl.value = n.toString(base).toUpperCase();
+    update();
+  }
+
+  function setError(msg) {
+    if (msg) {
+      errEl.textContent = msg;
+      errEl.classList.remove("hidden");
+    } else {
+      errEl.classList.add("hidden");
+    }
+  }
+
+  function update() {
+    const raw = valueEl.value.trim();
+    if (!raw) {
+      setError("Enter a value to convert.");
+      [outDec, outBin, outOct, outHex].forEach((el) => (el.textContent = "—"));
+      bitsEl.innerHTML = "";
+      bcdEl.innerHTML = "";
+      return;
+    }
+    const n = parseCurrent();
+    if (n === null) {
+      setError("Invalid input for selected base, or out of 32-bit range.");
+      return;
+    }
+    setError("");
+    const width = chooseWidth(n);
+    const bits = n.toString(2).padStart(width, "0");
+    const grouped = bits.match(/.{1,4}/g).join(" ");
+    outDec.textContent = n.toString(10);
+    outBin.textContent = grouped;
+    outOct.textContent = n.toString(8);
+    outHex.textContent = n.toString(16).toUpperCase();
+    renderBits(n, width);
+    renderBCD(n);
+  }
+
+  valueEl.addEventListener("input", update);
+  baseEl.addEventListener("change", () => {
+    const n = parseCurrent();
+    if (n !== null) {
+      valueEl.value = n.toString(parseInt(baseEl.value, 10)).toUpperCase();
+    }
+    update();
+  });
+
+  document.querySelectorAll(".examples button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      baseEl.value = btn.dataset.base;
+      valueEl.value = btn.dataset.value;
+      update();
+    });
+  });
+
+  update();
+})();
+</script>
+
+</body>
+</html>
