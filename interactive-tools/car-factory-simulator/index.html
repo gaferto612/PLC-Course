@@ -444,6 +444,8 @@ const state = {
   stopHealthy: true,
   // Latched alarm — only cleared by Reset.
   alarmLatch: false,
+  // Latched cycle-stop request — cleared when program returns to idle.
+  stopRequested: false,
   // Carriage of chassis on the line: list of {id, x, painted, hasEngine, qcStatus, atOutput}
   chassis: [],
   nextId: 1,
@@ -509,8 +511,9 @@ function executeProgram(dt) {
     return;
   }
 
-  // ── PB_Stop is NC, so a "false" reading means the operator pressed Stop ──
-  const stopPressed = !state.inputs.PB_Stop;
+  // ── PB_Stop is NC; a Stop press latches state.stopRequested until honored ──
+  if (!state.inputs.PB_Stop) state.stopRequested = true;
+  const stopPressed = state.stopRequested;
 
   state.stepTimer += dt;
 
@@ -520,6 +523,7 @@ function executeProgram(dt) {
 
   switch (state.step) {
     case 'S0_IDLE':
+      state.stopRequested = false;
       if (state.inputs.PB_Start && !stopPressed) {
         state.cycleStart = performance.now();
         setStep('S1_LOAD');
@@ -527,6 +531,8 @@ function executeProgram(dt) {
       break;
 
     case 'S1_LOAD':
+      // Reset per-cycle clock on every cycle start (not only the first).
+      state.cycleStart = performance.now();
       // Spawn a new chassis at the infeed
       state.chassis.push({
         id: state.nextId++,
@@ -831,7 +837,8 @@ $('btnStart').addEventListener('click', () => {
   setTimeout(() => state.inputs.PB_Start = false, 200); // momentary push
 });
 $('btnStop').addEventListener('click', () => {
-  // Drop the NC line for one scan to register the press.
+  // Latch a stop request; cleared when the program returns to idle (cycle stop, not E-stop).
+  state.stopRequested = true;
   state.inputs.PB_Stop = false;
   setTimeout(() => state.inputs.PB_Stop = true, 250);
 });
@@ -857,6 +864,7 @@ $('btnReset').addEventListener('click', () => {
   state.carsProduced = 0;
   state.qcPass = 0;
   state.qcFail = 0;
+  state.stopRequested = false;
   state.paused = true;
 });
 $('speed').addEventListener('input', (e) => {

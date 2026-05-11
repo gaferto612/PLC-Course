@@ -15,7 +15,7 @@ Implement a 3-ingredient batch recipe:
 4. Drain (open `Y_Drain` until `Tank_Empty`)
 5. Return to idle
 
-Implement as a phase machine in ST. The `Hold_Timer_EN` for the mixer is gated by the phase.
+Implement as a phase machine in ST. `Mixer_Run` is true only during Phase 3 — the mixer's hold timer (external) drives `Mix_Done`.
 
 ## I/O
 

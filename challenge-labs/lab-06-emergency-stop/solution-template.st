@@ -2,7 +2,9 @@
    Lab 06 — Emergency Stop (Cat 1)
 *)
 
-IF State = 0 AND EStop_OK AND Reset AND Drive_AtZero THEN
+IF State = 1 AND NOT EStop_OK THEN
+    State := 0;
+ELSIF State = 0 AND EStop_OK AND Reset AND Drive_AtZero THEN
     State := 1;
 ELSIF State = 1 AND Start AND EStop_OK THEN
     State := 2;

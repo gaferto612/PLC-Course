@@ -90,7 +90,15 @@ exclude_docs: |
   /.github/
   /.venv/
   /docs/mkdocs.yml
+  /CLAUDE.md
   *.ipynb_checkpoints/
+  __pycache__/
+  *.pyc
+  /interactive-tools/car-factory-simulator/README.md
+  /interactive-tools/ladder-simulator/README.md
+  /interactive-tools/number-converter/README.md
+  /interactive-tools/scan-cycle-visualizer/README.md
+  /interactive-tools/timer-counter-playground/README.md
 
 nav:
   - Home: README.md

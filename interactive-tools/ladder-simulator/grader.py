@@ -32,7 +32,7 @@ TOKEN_RE = re.compile(
     r"""
     (?P<COMMENT>\(\*.*?\*\)|//[^\n]*) |
     (?P<NUMBER>\d+\.\d+|\d+) |
-    (?P<OP>:=|<>|<=|>=|[+\-*/<>=();,]) |
+    (?P<OP>:=|<>|<=|>=|[+\-*/<>=();,:]) |
     (?P<IDENT>[A-Za-z_][A-Za-z_0-9]*)
     """,
     re.VERBOSE | re.DOTALL,
@@ -48,9 +48,21 @@ KEYWORDS = {
 
 def lex(src: str) -> list[tuple[str, str]]:
     tokens: list[tuple[str, str]] = []
-    for m in TOKEN_RE.finditer(src):
+    pos = 0
+    while pos < len(src):
+        if src[pos].isspace():
+            pos += 1
+            continue
+        m = TOKEN_RE.match(src, pos)
+        if not m:
+            line = src.count("\n", 0, pos) + 1
+            col = pos - (src.rfind("\n", 0, pos) + 1) + 1
+            raise SyntaxError(
+                f"Unexpected character {src[pos]!r} at line {line}, col {col}"
+            )
         kind = m.lastgroup
         val = m.group()
+        pos = m.end()
         if kind == "COMMENT":
             continue
         if kind == "IDENT" and val.upper() in KEYWORDS:
@@ -205,18 +217,45 @@ def truthy(v):
     return bool(v)
 
 
+# IEC 61131-3 operator precedence (higher binds tighter).
+# Order: NOT / unary minus > * / MOD > + - > ordering > equality > AND > XOR > OR.
 PRECEDENCE = {
-    "OR": 1, "XOR": 2, "AND": 3, "NOT": 4,
-    "=": 5, "<>": 5, "<": 5, ">": 5, "<=": 5, ">=": 5,
+    "OR": 1, "XOR": 2, "AND": 3,
+    "=": 4, "<>": 4,
+    "<": 5, ">": 5, "<=": 5, ">=": 5,
     "+": 6, "-": 6,
     "*": 7, "/": 7, "MOD": 7,
+    "NOT": 9, "UMINUS": 9,
 }
-RIGHT_ASSOC = {"NOT"}
+RIGHT_ASSOC = {"NOT", "UMINUS"}
+UNARY_OPS = {"NOT", "UMINUS"}
+
+
+def _mark_unary(tokens):
+    """Replace binary '-' tokens that are actually unary with a UMINUS marker."""
+    out = []
+    for t in tokens:
+        kind, val = t
+        if kind == "OP" and val == "-":
+            prev = out[-1] if out else None
+            if prev is None:
+                out.append(("OP", "UMINUS"))
+                continue
+            pk, pv = prev
+            if pk == "OP" and pv != ")":
+                out.append(("OP", "UMINUS"))
+                continue
+            if pk == "KW" and pv in PRECEDENCE:
+                out.append(("OP", "UMINUS"))
+                continue
+        out.append(t)
+    return out
 
 
 def eval_expr(tokens, env):
     if not tokens:
         return False
+    tokens = _mark_unary(tokens)
     output = []
     ops = []
     for t in tokens:
@@ -261,11 +300,16 @@ def eval_expr(tokens, env):
             if val == "NOT":
                 a = stack.pop()
                 stack.append(not truthy(a))
+            elif val == "UMINUS":
+                a = stack.pop()
+                stack.append(-a)
             else:
                 b = stack.pop()
-                a = stack.pop() if stack else 0
+                a = stack.pop()
                 stack.append(apply_op(val, a, b))
-    return stack[-1] if stack else False
+    if len(stack) != 1:
+        raise SyntaxError(f"malformed expression (stack={stack!r})")
+    return stack[0]
 
 
 def apply_op(op, a, b):
@@ -282,7 +326,12 @@ def apply_op(op, a, b):
     if op == "*":
         return a * b
     if op == "/":
-        return a / b if b != 0 else 0
+        if b == 0:
+            return 0
+        # IEC INT division truncates toward zero; only switch to float when an operand is float.
+        if isinstance(a, float) or isinstance(b, float):
+            return a / b
+        return int(a / b)
     if op == "MOD":
         return a % b if b != 0 else 0
     if op == "=":
@@ -327,6 +376,29 @@ def run_st(source, inputs):
 # ══════════════════════ Grader ══════════════════════
 
 
+def _canonical(v):
+    """Normalize values so True/1/'1'/'true' compare equal, and 5.0 == 5."""
+    if isinstance(v, bool):
+        return 1 if v else 0
+    if isinstance(v, (int, float)):
+        f = float(v)
+        return int(f) if f.is_integer() else f
+    s = str(v).strip().lower()
+    if s == "true":
+        return 1
+    if s == "false":
+        return 0
+    try:
+        f = float(s)
+        return int(f) if f.is_integer() else f
+    except ValueError:
+        return s
+
+
+def values_equal(actual, expected):
+    return _canonical(actual) == _canonical(expected)
+
+
 def grade_lab(lab_dir):
     solution_file = None
     for name in ("solution.st", "main.st"):
@@ -364,7 +436,7 @@ def grade_lab(lab_dir):
                         env.update(scan.get("inputs", {}))
                         env = run_st(source, env)
                         for k, v in scan.get("expect", {}).items():
-                            if str(env.get(k)).lower() != str(v).lower():
+                            if not values_equal(env.get(k), v):
                                 ok = False
                                 fail_msg = f"expected {k}={v}, got {k}={env.get(k)}"
                                 break
@@ -375,7 +447,7 @@ def grade_lab(lab_dir):
                     ok = True
                     fail_msg = ""
                     for k, v in case.get("expect", {}).items():
-                        if str(env.get(k)).lower() != str(v).lower():
+                        if not values_equal(env.get(k), v):
                             ok = False
                             fail_msg = f"expected {k}={v}, got {k}={env.get(k)}"
                             break

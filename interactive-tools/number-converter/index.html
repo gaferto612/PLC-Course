@@ -329,8 +329,9 @@
         cell.addEventListener("click", () => {
           const cur = parseCurrent();
           if (cur === null) return;
-          const toggled = cur ^ (1 << myIdx);
-          if (toggled < 0 || toggled >= 2 ** 32) return;
+          // Use >>> 0 to coerce to unsigned 32-bit; JS << is signed and bit 31 would otherwise flip the sign.
+          const toggled = (cur ^ (1 << myIdx)) >>> 0;
+          if (toggled >= 2 ** 32) return;
           setValue(toggled);
         });
         row.appendChild(cell);
@@ -350,7 +351,7 @@
 
   function renderBCD(n) {
     bcdEl.innerHTML = "";
-    const digits = String(n).padStart(4, "0").split("");
+    const digits = String(n).split("");
     digits.forEach((d) => {
       const wrap = document.createElement("div");
       wrap.className = "bcd-digit";

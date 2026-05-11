@@ -417,10 +417,11 @@ function renderHeadSection(rung, st) {
   // Multiple parallel branches — wrap in a vertical block joined by two v-bars.
   const branchResults = rung.branches.map(b => renderBranch(b, st));
   const anyTrue = branchResults.some(r => r.live);
+  const upstreamLive = st.upstream !== false;
 
   let html = '<div class="parallel">';
-  // Left vertical bar — energized if power has reached the parallel block at all.
-  html += `<div class="v-bar energized" style="position:absolute;left:0;top:0;bottom:0"></div>`;
+  // Left vertical bar — energized only if power has reached this block from upstream.
+  html += `<div class="v-bar ${upstreamLive ? 'energized' : ''}" style="position:absolute;left:0;top:0;bottom:0"></div>`;
   // Right vertical bar — energized if at least one branch passed.
   html += `<div class="v-bar ${anyTrue ? 'energized' : ''}" style="position:absolute;right:0;top:0;bottom:0"></div>`;
   branchResults.forEach(r => {

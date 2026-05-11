@@ -25,8 +25,8 @@ python interactive-tools/ladder-simulator/grader.py \
   --labs $'challenge-labs/lab-01-traffic-light\nchallenge-labs/lab-03-tank-fill-drain' \
   --report /tmp/report.md
 
-# Run an interactive tool locally
-streamlit run interactive-tools/number-converter/app.py
+# Run an interactive tool locally (number-converter uses Gradio; the rest use Streamlit)
+python interactive-tools/number-converter/app.py
 streamlit run interactive-tools/scan-cycle-visualizer/app.py
 streamlit run interactive-tools/timer-counter-playground/app.py
 

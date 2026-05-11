@@ -272,14 +272,20 @@
     for (let i = 0; i < WINDOW_MS; i++) {
       phys[i] = (i >= start && i < start + pulse) ? 1 : 0;
     }
-    let inputImage = 0, outputImage = 0;
+    // Real PLC scan: read inputs at the START of the scan, execute logic,
+    // then write outputs at the END of the scan. So an input that arrives
+    // just after the read phase isn't reflected on the output until the
+    // following scan completes — up to ~2 scan times of total latency.
+    let inputImage = 0, outputImage = 0, pendingOutput = 0;
     for (let i = 0; i < WINDOW_MS; i++) {
       if (i % scan === 0) {
+        // End-of-previous-scan write phase, then start-of-this-scan read + execute.
+        outputImage = pendingOutput;
         inputImage = phys[i];
         if (latched) {
-          if (inputImage === 1) outputImage = 1;
+          if (inputImage === 1) pendingOutput = 1;
         } else {
-          outputImage = inputImage;
+          pendingOutput = inputImage;
         }
       }
       img[i] = inputImage;
