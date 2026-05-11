@@ -1,0 +1,16 @@
+# Python build artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# MkDocs build output (built outside the repo by design — site_dir: ../../_site)
+/_site/
+
+# Local virtualenvs
+.venv/
+venv/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
