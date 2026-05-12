@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Workflow
+
+For every upgrade or change, always open a pull request and merge it to `main`. Do not push changes directly to `main` — land them through a PR.
+
 ## What this repo is
 
 PLC-FastTrack is a **course / curriculum repository**, not a software product. The bulk of the content is Markdown (sprints, cheat sheets, labs, references, flashcards). The only meaningful executable code is:
