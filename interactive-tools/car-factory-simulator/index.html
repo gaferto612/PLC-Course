@@ -226,6 +226,150 @@
     border-radius: 2px;
   }
 
+  /* ── Mode switch (segmented control) ─────────────────────────────── */
+  .modeswitch {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 12px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .modeswitch button {
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .modeswitch button:hover { color: #fff; }
+  .modeswitch button.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  }
+  .modeswitch button.active[data-mode="manual"] { background: var(--warn); }
+  .modeswitch button.active[data-mode="step"]   { background: #8b5cf6; }
+
+  .pill.mode-auto   strong { color: var(--accent); }
+  .pill.mode-manual strong { color: var(--warn); }
+  .pill.mode-step   strong { color: #c4b5fd; }
+
+  /* ── Manual jog grid ─────────────────────────────────────────────── */
+  .jog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .jog-grid button {
+    padding: 8px 6px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    background: var(--panel-2);
+  }
+  .jog-grid button .tag {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .jog-grid button.on { background: var(--energized); color: #052e16; border-color: var(--energized); }
+  .jog-grid button.on .tag { color: rgba(5,46,22,0.7); }
+  .jog-grid button.weld.on   { background: var(--weld);   color: #1c1917; border-color: var(--weld);   }
+  .jog-grid button.paint.on  { background: var(--paint);  color: #fff;    border-color: var(--paint);  }
+  .jog-grid button.engine.on { background: var(--engine); color: #fff;    border-color: var(--engine); }
+
+  /* ── Fault-injection toggles ─────────────────────────────────────── */
+  .inject-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .inject-grid label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .inject-grid label:hover { border-color: var(--warn); }
+  .inject-grid input { accent-color: var(--warn); }
+  .inject-grid .tag {
+    margin-left: auto;
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+  }
+  .inject-grid label.armed { border-color: var(--warn); background: rgba(245,158,11,0.12); }
+
+  /* ── Step hint banner ────────────────────────────────────────────── */
+  .hint {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: rgba(59,130,246,0.10);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+  .hint b { color: #fff; }
+
+  /* ── Cycle-time sparkline ────────────────────────────────────────── */
+  .chart {
+    margin-top: 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .chart h3 {
+    margin: 0 0 4px;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    display: flex; justify-content: space-between;
+  }
+  .chart h3 span { color: #fff; }
+  .chart canvas { display: block; width: 100%; height: 48px; }
+
+  /* ── Clickable / forced inputs ───────────────────────────────────── */
+  .io-row.clickable { cursor: pointer; user-select: none; }
+  .io-row.clickable:hover { outline: 1px solid var(--accent); }
+  .io-row.forced { box-shadow: inset 3px 0 0 var(--warn); }
+  .io-row.forced .io-name::after {
+    content: " · FORCED";
+    color: var(--warn);
+    font-size: 10px;
+    margin-left: 4px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Step-mode "next scan" button ────────────────────────────────── */
+  button.step-scan {
+    background: #8b5cf6;
+    border-color: #8b5cf6;
+    color: #fff;
+  }
+  button.step-scan:hover { background: #7c3aed; }
+  .hide { display: none !important; }
+
   footer {
     color: var(--muted);
     font-size: 12px;
@@ -247,11 +391,14 @@
 
 <div class="status-bar" id="statusBar">
   <span class="pill" id="pillState"><span class="dot"></span><strong>IDLE</strong></span>
+  <span class="pill mode-auto" id="pillMode">Mode: <strong id="lblMode">AUTO</strong></span>
   <span class="pill">Step: <strong id="lblStep">S0_IDLE</strong></span>
   <span class="pill">Cycle time: <strong id="lblCycle">—</strong></span>
+  <span class="pill">Avg cycle: <strong id="lblAvg">—</strong></span>
   <span class="pill">Cars produced: <strong id="lblCount">0</strong></span>
   <span class="pill">QC passed: <strong id="lblPass">0</strong></span>
   <span class="pill">QC failed: <strong id="lblFail">0</strong></span>
+  <span class="pill">Throughput: <strong id="lblThrough">—</strong></span>
   <span class="pill">Scan #: <strong id="lblScan">0</strong></span>
 </div>
 
@@ -332,6 +479,34 @@
       <button id="btnEStop" class="danger">⛔ E-Stop</button>
       <button id="btnReset">⟲ Reset</button>
     </div>
+
+    <div class="modeswitch" id="modeSwitch" role="tablist" aria-label="Control mode">
+      <button data-mode="auto"   class="active" title="SFC drives the line">Auto</button>
+      <button data-mode="manual" title="Operator drives outputs directly">Manual</button>
+      <button data-mode="step"   title="Advance one PLC scan at a time">Step</button>
+    </div>
+
+    <div id="stepControls" class="controls hide" style="margin-top:8px">
+      <button id="btnScanOnce" class="step-scan">⏯ Scan once</button>
+      <button id="btnScan10">⏭ +10 scans</button>
+    </div>
+
+    <div id="manualPanel" class="hide" style="margin-top:8px">
+      <h2 style="margin:6px 0 4px">Manual Jog (drives %Q directly)</h2>
+      <div class="jog-grid">
+        <button data-jog="Y_Belt"><span>Conveyor</span><span class="tag">Q0.0 · Y_Belt</span></button>
+        <button data-jog="Y_Weld" class="weld"><span>Weld robot</span><span class="tag">Q0.1 · Y_Weld</span></button>
+        <button data-jog="Y_Paint" class="paint"><span>Paint sprayer</span><span class="tag">Q0.2 · Y_Paint</span></button>
+        <button data-jog="Y_Engine" class="engine"><span>Engine hoist</span><span class="tag">Q0.3 · Y_Engine</span></button>
+        <button data-jog="Y_QC_Pass"><span>QC pass lamp</span><span class="tag">Q0.4</span></button>
+        <button data-jog="Y_QC_Fail"><span>QC fail lamp</span><span class="tag">Q0.5</span></button>
+      </div>
+      <div class="controls" style="margin-top:8px">
+        <button id="btnSpawn">＋ Spawn chassis</button>
+        <button id="btnClearLine">⌫ Clear line</button>
+      </div>
+    </div>
+
     <label class="slider-label" style="margin-top:12px">
       Sim speed
       <input type="range" id="speed" min="0.25" max="4" step="0.25" value="1" />
@@ -343,7 +518,7 @@
       <span id="passRateLbl">85%</span>
     </label>
 
-    <h2 style="margin-top:18px">Inputs (PLC %I)</h2>
+    <h2 style="margin-top:18px">Inputs (PLC %I) <span style="font-size:10px; text-transform:none; letter-spacing:0; color:var(--muted)">— click to force</span></h2>
     <div class="io-grid" id="inputs"></div>
 
     <h2 style="margin-top:14px">Outputs (PLC %Q)</h2>
@@ -355,6 +530,29 @@
       <span>Description</span><strong id="stepDesc">Waiting for Start</strong>
       <span>Step timer</span><strong id="stepTimer">0.0 s</strong>
     </div>
+    <div class="hint" id="hint"><b>Tip:</b> Press <code>▶ Start</code> to release the SFC from <code>S0_IDLE</code>. With PB_Stop and PB_EStop healthy (green), the latch in <code>S0_IDLE</code> opens and the program advances to <code>S1_LOAD</code>.</div>
+
+    <div class="chart" id="cycleChart">
+      <h3>Last 10 cycle times <span id="chartLast">—</span></h3>
+      <canvas id="cycleCanvas" width="320" height="48"></canvas>
+    </div>
+
+    <details style="margin-top:14px">
+      <summary>⚠ Fault injection (instructor mode)</summary>
+      <div class="inject-grid" id="injectGrid">
+        <label><input type="checkbox" data-inject="stuck_PE_Weld" />Stuck sensor <span class="tag">PE_Weld → 1</span></label>
+        <label><input type="checkbox" data-inject="stuck_PE_Paint" />Stuck sensor <span class="tag">PE_Paint → 1</span></label>
+        <label><input type="checkbox" data-inject="stuck_PE_Engine" />Stuck sensor <span class="tag">PE_Engine → 1</span></label>
+        <label><input type="checkbox" data-inject="stuck_PE_QC" />Stuck sensor <span class="tag">PE_QC → 1</span></label>
+        <label><input type="checkbox" data-inject="belt_jam" />Belt motor jam <span class="tag">Y_Belt ⇏ motion</span></label>
+        <label><input type="checkbox" data-inject="qc_fail_all" />Force every QC to fail <span class="tag">100%</span></label>
+        <label><input type="checkbox" data-inject="qc_pass_all" />Force every QC to pass <span class="tag">100%</span></label>
+      </div>
+      <p style="font-size:11.5px; color:var(--muted); margin:8px 0 0">
+        Inject a fault and watch the alarm logic, the stuck sensor, or the QC counters react.
+        Great for teaching fault-diagnosis (Bolton Ch. 14).
+      </p>
+    </details>
   </aside>
 </main>
 
@@ -450,8 +648,27 @@ const state = {
   passRate: 0.85,
   paused: true,
   estop: false,
+  // ─── Learning aids ────────────────────────────────────────────────
+  mode: 'auto',                    // 'auto' | 'manual' | 'step'
+  stepRequest: 0,                  // # of scans to advance while in step mode
+  cycleHistory: [],                // last N cycle times (seconds)
+  forcedInputs: {},                // { PE_Weld: true } overrides plant value
+  injects: {                       // fault-injection toggles
+    stuck_PE_Weld: false, stuck_PE_Paint: false,
+    stuck_PE_Engine: false, stuck_PE_QC: false,
+    belt_jam: false, qc_fail_all: false, qc_pass_all: false,
+  },
+  manualOutputs: {                 // operator-driven coils in Manual mode
+    Y_Belt: false, Y_Weld: false, Y_Paint: false,
+    Y_Engine: false, Y_QC_Pass: false, Y_QC_Fail: false,
+  },
+  runStart: 0,                     // wall-clock start of the current Auto run
 };
-state.inputs.PB_Stop = true; // NC contact — high in healthy state
+// NC contacts read HIGH when the operator is NOT pressing them.
+// Initialising them low triggered the fault check on scan #1, which is why
+// Start used to "do nothing" — the program had already latched S_FAULT.
+state.inputs.PB_Stop  = true;
+state.inputs.PB_EStop = true;
 
 // ─── DOM helpers ─────────────────────────────────────────────────────────────
 const $ = (id) => document.getElementById(id);
@@ -495,6 +712,22 @@ const STEP_TO_LINE = {
 };
 
 function executeProgram(dt) {
+  // ── Manual mode bypasses the SFC entirely; outputs come from jog buttons. ──
+  if (state.mode === 'manual') {
+    // Safety still applies even in manual.
+    if (!state.inputs.PB_EStop) {
+      state.alarmLatch = true;
+      state.step = 'S_FAULT';
+      for (const k of Object.keys(state.outputs)) state.outputs[k] = (k === 'Y_Alarm');
+      return;
+    }
+    for (const k of Object.keys(state.manualOutputs)) state.outputs[k] = state.manualOutputs[k];
+    state.outputs.Y_Alarm = false;
+    state.step = 'S0_IDLE';
+    state.stepTimer = 0;
+    return;
+  }
+
   // ── Safety override: fault is sticky until Reset ──
   if (state.alarmLatch || !state.inputs.PB_EStop) {
     state.outputs.Y_Belt = false;
@@ -582,7 +815,10 @@ function executeProgram(dt) {
       if (state.stepTimer >= STATIONS.qc.timer) {
         const c = leadChassis();
         if (c) {
-          c.qcStatus = Math.random() < state.passRate ? 'pass' : 'fail';
+          let rate = state.passRate;
+          if (state.injects.qc_fail_all) rate = 0;
+          if (state.injects.qc_pass_all) rate = 1;
+          c.qcStatus = Math.random() < rate ? 'pass' : 'fail';
           if (c.qcStatus === 'pass') state.qcPass++; else state.qcFail++;
         }
         setStep('S10_DISCHARGE');
@@ -600,6 +836,8 @@ function executeProgram(dt) {
           c.atOutput = true;
           state.carsProduced++;
           state.cycleTime = (performance.now() - state.cycleStart) / 1000;
+          state.cycleHistory.push(state.cycleTime);
+          if (state.cycleHistory.length > 10) state.cycleHistory.shift();
           // If the operator pressed Stop, return to idle. Otherwise loop back.
           setStep(stopPressed ? 'S0_IDLE' : 'S1_LOAD');
         }
@@ -634,24 +872,31 @@ function leadChassis() {
 
 // ─── Plant simulation: the world the PLC observes ────────────────────────────
 function tickPlant(dt) {
-  // Move chassis when the belt is energized.
-  if (state.outputs.Y_Belt) {
+  const beltMoving = state.outputs.Y_Belt && !state.injects.belt_jam;
+
+  // Move chassis when the belt is energized (and not jammed).
+  if (beltMoving) {
     const speed = 90; // px / s
     state.chassis.forEach(c => { if (!c.atOutput) c.x += speed * dt; });
   }
 
   // Photoelectric eyes — high while a chassis is within tolerance of the eye.
   const within = (c, x) => Math.abs(c.x - x) < 14 && !c.atOutput;
-  state.inputs.PE_Weld   = state.chassis.some(c => within(c, STATIONS.weld.x));
-  state.inputs.PE_Paint  = state.chassis.some(c => within(c, STATIONS.paint.x));
-  state.inputs.PE_Engine = state.chassis.some(c => within(c, STATIONS.engine.x));
-  state.inputs.PE_QC     = state.chassis.some(c => within(c, STATIONS.qc.x));
+  state.inputs.PE_Weld   = state.chassis.some(c => within(c, STATIONS.weld.x))   || state.injects.stuck_PE_Weld;
+  state.inputs.PE_Paint  = state.chassis.some(c => within(c, STATIONS.paint.x))  || state.injects.stuck_PE_Paint;
+  state.inputs.PE_Engine = state.chassis.some(c => within(c, STATIONS.engine.x)) || state.injects.stuck_PE_Engine;
+  state.inputs.PE_QC     = state.chassis.some(c => within(c, STATIONS.qc.x))     || state.injects.stuck_PE_QC;
+
+  // Apply user-forced inputs LAST so they override the plant.
+  for (const [name, value] of Object.entries(state.forcedInputs)) {
+    state.inputs[name] = value;
+  }
 
   // Drop chassis that have exited the floor.
   state.chassis = state.chassis.filter(c => c.x < 870);
 
-  // Belt scrolls visually only while energized.
-  if (state.outputs.Y_Belt) {
+  // Belt scrolls visually only while it is actually moving.
+  if (beltMoving) {
     Array.from(beltMarksGroup.children).forEach(rect => {
       let x = parseFloat(rect.getAttribute('x')) + 90 * dt;
       if (x > 860) x -= 30 * 28;
@@ -730,13 +975,20 @@ function renderFloor() {
   });
 }
 
+let lastRenderedStep = null;
 function renderStatus() {
   const pill = $('pillState');
   pill.classList.remove('running', 'faulted');
   let label = 'IDLE';
   if (state.alarmLatch) { pill.classList.add('faulted'); label = 'FAULTED'; }
+  else if (state.mode === 'manual') { label = 'MANUAL'; }
+  else if (state.mode === 'step')   { label = 'STEP'; }
   else if (!state.paused) { pill.classList.add('running'); label = 'RUNNING'; }
   pill.querySelector('strong').textContent = label;
+
+  const modePill = $('pillMode');
+  modePill.className = 'pill mode-' + state.mode;
+  $('lblMode').textContent = state.mode.toUpperCase();
 
   $('lblStep').textContent = state.step;
   $('lblScan').textContent = state.scanCount;
@@ -745,6 +997,17 @@ function renderStatus() {
   $('lblFail').textContent = state.qcFail;
   $('lblCycle').textContent = state.cycleTime ? state.cycleTime.toFixed(1) + ' s' : '—';
 
+  const hist = state.cycleHistory;
+  $('lblAvg').textContent = hist.length
+    ? (hist.reduce((a, b) => a + b, 0) / hist.length).toFixed(1) + ' s'
+    : '—';
+  if (state.runStart && state.carsProduced > 0) {
+    const minutes = (performance.now() - state.runStart) / 60000;
+    $('lblThrough').textContent = (state.carsProduced / minutes).toFixed(1) + ' /min';
+  } else {
+    $('lblThrough').textContent = '—';
+  }
+
   const tag = $('stepTag');
   tag.textContent = state.step;
   tag.classList.remove('idle', 'fault');
@@ -752,6 +1015,11 @@ function renderStatus() {
   if (state.step === 'S_FAULT') tag.classList.add('fault');
   $('stepDesc').textContent = STEPS[STEP_INDEX[state.step]].desc;
   $('stepTimer').textContent = state.stepTimer.toFixed(1) + ' s';
+
+  if (lastRenderedStep !== state.step) {
+    lastRenderedStep = state.step;
+    renderHint();
+  }
 
   highlightCode();
 }
@@ -826,14 +1094,24 @@ function highlightCode() {
 // ─── Controls ────────────────────────────────────────────────────────────────
 $('btnStart').addEventListener('click', () => {
   if (state.alarmLatch) return;
+  if (state.mode === 'manual') {
+    // In Manual mode, Start is meaningless — flash the hint instead.
+    flashHint('Manual mode is active — use the Jog grid below to drive outputs directly.');
+    return;
+  }
   state.inputs.PB_Start = true;
   state.paused = false;
-  setTimeout(() => state.inputs.PB_Start = false, 200); // momentary push
+  if (!state.runStart) state.runStart = performance.now();
+  // Make sure the press lasts long enough to be seen by at least one scan
+  // even when the user picked Step mode.
+  setTimeout(() => state.inputs.PB_Start = false, 350); // momentary push
+  if (state.mode === 'step') state.stepRequest += 1;
 });
 $('btnStop').addEventListener('click', () => {
   // Drop the NC line for one scan to register the press.
   state.inputs.PB_Stop = false;
-  setTimeout(() => state.inputs.PB_Stop = true, 250);
+  setTimeout(() => state.inputs.PB_Stop = true, 350);
+  if (state.mode === 'step') state.stepRequest += 1;
 });
 const eStopBtn = $('btnEStop');
 eStopBtn.addEventListener('click', () => {
@@ -849,6 +1127,8 @@ $('btnReset').addEventListener('click', () => {
     return;
   }
   state.alarmLatch = false;
+  state.inputs.PB_EStop = true;   // NC re-armed
+  state.inputs.PB_Stop  = true;
   state.step = 'S0_IDLE';
   state.stepTimer = 0;
   state.chassis = [];
@@ -857,6 +1137,8 @@ $('btnReset').addEventListener('click', () => {
   state.carsProduced = 0;
   state.qcPass = 0;
   state.qcFail = 0;
+  state.cycleHistory = [];
+  state.forcedInputs = {};
   state.paused = true;
 });
 $('speed').addEventListener('input', (e) => {
@@ -868,8 +1150,150 @@ $('passRate').addEventListener('input', (e) => {
   $('passRateLbl').textContent = e.target.value + '%';
 });
 
+// ─── Mode switch ─────────────────────────────────────────────────────────────
+$('modeSwitch').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-mode]');
+  if (!btn) return;
+  setMode(btn.dataset.mode);
+});
+
+function setMode(mode) {
+  state.mode = mode;
+  document.querySelectorAll('#modeSwitch button').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === mode)
+  );
+  $('manualPanel').classList.toggle('hide', mode !== 'manual');
+  $('stepControls').classList.toggle('hide', mode !== 'step');
+
+  // In manual mode, snapshot current outputs so the operator picks up where
+  // the SFC left off — feels like a real handover.
+  if (mode === 'manual') {
+    for (const k of Object.keys(state.manualOutputs)) {
+      state.manualOutputs[k] = !!state.outputs[k];
+      updateJogBtn(k);
+    }
+  }
+  if (mode !== 'manual') {
+    for (const k of Object.keys(state.manualOutputs)) state.manualOutputs[k] = false;
+    document.querySelectorAll('[data-jog]').forEach(b => b.classList.remove('on'));
+  }
+  if (mode !== 'step') state.stepRequest = 0;
+  flashHint(MODE_HINTS[mode]);
+}
+
+const MODE_HINTS = {
+  auto:   '<b>Auto</b> — the SFC reads inputs and drives outputs every 100 ms. This is real PLC behaviour.',
+  manual: '<b>Manual</b> — the SFC is bypassed. Click the jog buttons to drive each %Q directly. Useful for commissioning and to feel how outputs map to the floor.',
+  step:   '<b>Step</b> — the scan loop is paused. Click <code>Scan once</code> or <code>+10 scans</code> to advance one PLC scan at a time and watch the state evolve.',
+};
+
+// ─── Manual jog ──────────────────────────────────────────────────────────────
+function updateJogBtn(name) {
+  const btn = document.querySelector(`[data-jog="${name}"]`);
+  if (btn) btn.classList.toggle('on', !!state.manualOutputs[name]);
+}
+document.querySelectorAll('[data-jog]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (state.mode !== 'manual') {
+      flashHint('Switch to <b>Manual</b> mode to drive outputs directly.');
+      return;
+    }
+    const name = btn.dataset.jog;
+    state.manualOutputs[name] = !state.manualOutputs[name];
+    updateJogBtn(name);
+  });
+});
+$('btnSpawn').addEventListener('click', () => {
+  state.chassis.push({
+    id: state.nextId++,
+    x: 30, painted: false, hasEngine: false, qcStatus: null, atOutput: false,
+  });
+});
+$('btnClearLine').addEventListener('click', () => {
+  state.chassis = [];
+});
+
+// ─── Step mode ───────────────────────────────────────────────────────────────
+$('btnScanOnce').addEventListener('click', () => { state.stepRequest += 1; });
+$('btnScan10').addEventListener('click',    () => { state.stepRequest += 10; });
+
+// ─── Fault injection ─────────────────────────────────────────────────────────
+$('injectGrid').addEventListener('change', (e) => {
+  const cb = e.target.closest('input[data-inject]');
+  if (!cb) return;
+  state.injects[cb.dataset.inject] = cb.checked;
+  cb.closest('label').classList.toggle('armed', cb.checked);
+});
+
+// ─── Clickable input rows — force a sensor for testing ───────────────────────
+INPUT_DEFS.forEach(io => {
+  const row = $('in_' + io.name);
+  row.classList.add('clickable');
+  row.title = `${io.desc}\n\nClick to force this input. Click again to release.`;
+  row.addEventListener('click', () => {
+    if (io.name in state.forcedInputs) {
+      delete state.forcedInputs[io.name];
+    } else {
+      // Force to the OPPOSITE of the current reading so the click does something visible.
+      state.forcedInputs[io.name] = !state.inputs[io.name];
+    }
+    row.classList.toggle('forced', io.name in state.forcedInputs);
+  });
+});
+
+// ─── Hint banner ────────────────────────────────────────────────────────────
+let hintTimer = null;
+function flashHint(html) {
+  $('hint').innerHTML = html;
+  if (hintTimer) clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => renderHint(), 6000);
+}
+const STEP_HINTS = {
+  S0_IDLE:     'In <b>S0_IDLE</b>, every motion output is OFF. The transition <code>PB_Start AND PB_Stop</code> opens on the next press of Start.',
+  S1_LOAD:     '<b>S1_LOAD</b> spawns a new chassis at the infeed in a single scan, then unconditionally jumps to <code>S2_TO_WELD</code>.',
+  S2_TO_WELD:  '<b>S2_TO_WELD</b> energises <code>Y_Belt</code>. The transition fires when <code>PE_Weld</code> goes high — that\'s the photoelectric eye seeing the chassis.',
+  S3_WELD:     '<b>S3_WELD</b> drops the belt and energises <code>Y_Weld</code> for 5 s. This is a timed step — no sensor needed.',
+  S4_TO_PAINT: '<b>S4_TO_PAINT</b> — belt is on again, advancing the welded chassis to the paint booth.',
+  S5_PAINT:    '<b>S5_PAINT</b> — belt off, <code>Y_Paint</code> on for 4 s. Watch the chassis colour change as the painted flag is set.',
+  S6_TO_ENGINE:'<b>S6_TO_ENGINE</b> — belt to the engine cell. The interlock is again the PE eye, not a timer.',
+  S7_ENGINE:   '<b>S7_ENGINE</b> — 6 s engine install. The chassis gains a ⚙ marker when it leaves this step.',
+  S8_TO_QC:    '<b>S8_TO_QC</b> — belt to QC. Last conveyor segment before discharge.',
+  S9_QC:       '<b>S9_QC</b> — 3 s inspection. At the end, a random pass/fail roll lights <code>Y_QC_Pass</code> or <code>Y_QC_Fail</code>.',
+  S10_DISCHARGE:'<b>S10_DISCHARGE</b> — belt + QC lamp until the chassis crosses x=850. Then loop back to <code>S1_LOAD</code> (or to <code>S0_IDLE</code> if Stop was pressed).',
+  S_FAULT:     '<b>S_FAULT</b> — every motion output is dropped, <code>Y_Alarm</code> latches ON. Operator must release the E-stop, then press <code>Reset</code>.',
+};
+function renderHint() {
+  $('hint').innerHTML = `<b>${state.step}</b> · ${STEPS[STEP_INDEX[state.step]].desc}<br>${STEP_HINTS[state.step] || ''}`;
+}
+
+// ─── Cycle-time sparkline ────────────────────────────────────────────────────
+const cycleCtx = $('cycleCanvas').getContext('2d');
+function renderChart() {
+  const w = cycleCtx.canvas.width  = cycleCtx.canvas.clientWidth * devicePixelRatio;
+  const h = cycleCtx.canvas.height = cycleCtx.canvas.clientHeight * devicePixelRatio;
+  cycleCtx.clearRect(0, 0, w, h);
+  const data = state.cycleHistory;
+  if (!data.length) {
+    cycleCtx.fillStyle = '#475569';
+    cycleCtx.font = `${11 * devicePixelRatio}px ui-monospace, monospace`;
+    cycleCtx.fillText('no cycles yet — press Start', 6 * devicePixelRatio, 18 * devicePixelRatio);
+    return;
+  }
+  const maxV = Math.max(...data) * 1.1;
+  const minV = 0;
+  const barW = w / 10;
+  data.forEach((v, i) => {
+    const x = i * barW;
+    const bh = (v - minV) / (maxV - minV || 1) * (h - 6 * devicePixelRatio);
+    cycleCtx.fillStyle = i === data.length - 1 ? '#22c55e' : '#3b82f6';
+    cycleCtx.fillRect(x + 2, h - bh - 2, barW - 4, bh);
+  });
+  $('chartLast').textContent = data[data.length - 1].toFixed(1) + ' s';
+}
+
 // ─── Main loop ───────────────────────────────────────────────────────────────
 renderCode();
+renderHint();
 let lastTick = performance.now();
 let scanAcc = 0;
 function frame() {
@@ -878,18 +1302,31 @@ function frame() {
   lastTick = now;
   const dt = realDt * speedMul;
 
-  // PLC scan happens at a fixed cadence (100 ms)
-  scanAcc += realDt * 1000 * speedMul;
-  while (scanAcc >= SCAN_MS) {
-    state.scanCount++;
-    executeProgram(SCAN_MS / 1000);
-    scanAcc -= SCAN_MS;
+  // PLC scan cadence depends on the mode:
+  //  - auto   → fixed 100 ms scan, multiplied by sim speed
+  //  - manual → still scan to update outputs / latch e-stop
+  //  - step   → only advance when the user requests scans
+  if (state.mode === 'step') {
+    while (state.stepRequest > 0) {
+      state.scanCount++;
+      tickPlant(SCAN_MS / 1000);    // plant ticks once per scan in step mode
+      executeProgram(SCAN_MS / 1000);
+      state.stepRequest--;
+    }
+  } else {
+    scanAcc += realDt * 1000 * speedMul;
+    while (scanAcc >= SCAN_MS) {
+      state.scanCount++;
+      executeProgram(SCAN_MS / 1000);
+      scanAcc -= SCAN_MS;
+    }
+    tickPlant(dt);
   }
 
-  tickPlant(dt);
   renderIO();
   renderFloor();
   renderStatus();
+  renderChart();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
